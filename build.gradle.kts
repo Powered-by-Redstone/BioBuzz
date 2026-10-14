@@ -25,12 +25,15 @@ ftc {
 //        implementation(ftc)
 //        implementation(telemetry)
 //    }
-    implementation(EasyAutoDependency("com.pedropathing","revhub","3.0.1"))
-    implementation(EasyAutoDependency("com.pedropathing","tuning","1.0.0"))
 
     next.v2 {
         implementation(control("0.2.1"))
         implementation(hardware("0.2.1"))
         implementation(robot("0.2.1"))
     }
+}
+
+dependencies {
+    implementation("com.pedropathing:revhub:3.0.1")
+    implementation("com.pedropathing:tuning:1.0.2")
 }
