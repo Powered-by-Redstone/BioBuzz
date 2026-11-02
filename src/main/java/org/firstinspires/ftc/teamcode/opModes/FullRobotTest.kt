@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.OpModes
+package org.firstinspires.ftc.teamcode.opModes
 
 import dev.nextftc.robot.opmode.BulkReadHook
 import dev.nextftc.robot.opmode.NextOpMode

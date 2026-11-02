@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.Mechanisms
+package org.firstinspires.ftc.teamcode.mechanisms
 
 import dev.nextftc.robot.Mechanism
 
