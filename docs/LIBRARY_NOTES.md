@@ -52,12 +52,36 @@ Not declared: `com.pedropathing.ivy:pedro` (Pedro's Ivy commands).
   Default commands are scheduled in `beforeStart`.
 - `Telemetry` (`Telemetry.kt`): `log(key, String)`, `log(key, Any?)`, `log(line)`; reaches the Driver Station.
 
+- Gamepad triggers (`triggers/CommandGamepad.kt`, `triggers/Trigger.kt`): `CommandGamepad(gamepad)` exposes
+  `Trigger`s such as `square`, `cross`, `x`, bumpers, d-pad. `onTrue(cmd)` schedules on the rising edge;
+  also `onFalse`, `whileTrue`, `toggleOnTrue`. Bindings go on `Trigger.defaultEventLoop`, polled only while the
+  OpMode runs (not in INIT) and cleared when it ends.
+
 ## NextFTC hardware 0.3.0 (hardware-0.3.0-sources.jar)
+
+- `NextMotor(module: NextLynxModule, port: Int)` (`actuators/NextMotor.kt`): addresses a motor by hub port
+  (0..3), no Robot Configuration name. `RobotController.controlHub` / `expansionHub` give the hubs. A port used
+  twice through this API throws "Port conflict"; named devices are not checked.
+- `NextMotor.throttle = x` sets `controlType = ControlType.Throttle(x)`, which throws unless x is in -1.0..1.0.
+  Power is written in `MotorHook` each loop. On OpMode stop the motor resets to `Throttle(0.0)`.
 
 - `NextLimelight(name)` (`webcams/NextLimelight.kt`): `startReading(pipeline, hz = 100)`, `start()`, `stop()`,
   `setPipeline`, `setPollRate`, `latestResult`, `isRunning`, `isConnected`, `tX`, `tY`, `getDistance`,
   `getPose()`, `getPedroPose()`. `latestResult` is declared non-null over the SDK getter; `getPose()` itself
   null-checks the SDK result.
+
+## Ivy 1.1.1 (core-1.1.1.jar via javap)
+
+- `CommandBuilder` implements `Command`. `Commands.instant/infinite/conditional/branch/lazy/match/waitMs/waitUntil`.
+- `Commands.conditional(cond, a, b)` picks `a` or `b` when it starts; requirements are the union of both,
+  priority the max.
+
+## Panels Configurables 0.3.2+1.0.5 (configurables-0.3.2+1.0.5-sources.jar)
+
+- Class must carry `@com.bylazar.configurables.annotations.Configurable`. Only static, non-final fields are
+  exposed (`ConfigurablesPlugin.scan`): in Kotlin, an `object` with `@JvmField var`, or a companion object's
+  `@JvmField var` with `@Configurable` on the outer class (the static field lives on the outer class). Instance
+  fields, `const val` and `val` are skipped. `@IgnoreConfigurable` excludes a class or field.
 
 ## Pedro 3.0.2 (core-3.0.2.jar via javap, revhub-3.0.2-sources.jar)
 

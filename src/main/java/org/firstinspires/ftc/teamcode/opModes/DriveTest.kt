@@ -6,12 +6,17 @@ import dev.nextftc.robot.Telemetry
 import dev.nextftc.robot.opmode.BulkReadHook
 import dev.nextftc.robot.opmode.NextOpMode
 import dev.nextftc.robot.opmode.NextTeleop
+import dev.nextftc.robot.triggers.CommandGamepad
 import org.firstinspires.ftc.teamcode.Robot
 import org.firstinspires.ftc.teamcode.pedro.Constants
 
 @NextTeleop("Drive test")
 class DriveTest(robot: Robot) : NextOpMode(robot, BulkReadHook) {
     private val follower: Follower = Constants.create(hardwareMap)
+
+    init {
+        CommandGamepad(gamepad1).square.toggleOnTrue(robot.intake.run)
+    }
 
     override fun periodic() {
         // Pedro frame: +x forward, +y left, heading in radians, counter-clockwise positive.
