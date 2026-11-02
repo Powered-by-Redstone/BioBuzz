@@ -37,7 +37,7 @@ For every request:
 5. For a non-trivial piece, state in a few lines what it owns, its inputs and outputs, and its states. Proceed without waiting for approval unless you found a conflict or a safety-relevant ambiguity.
 6. Implement, following Section 0.3.
 7. Write tests only where Section 17 requires them.
-8. Run the Gradle build, and any tests you wrote, if the toolchain is available.
+8. Do not build after every change. Run the Gradle build, and any tests you wrote, only when the team asks.
 9. Update the `docs/` files the change affects (Section 20).
 10. Report as described in Section 21.
 
@@ -47,11 +47,11 @@ The code must be concise and readable by students. Write the smallest amount of 
 
 - No enterprise patterns: no interfaces with a single implementation, no factories, builders, service locators, dependency injection, abstract base classes, manager hierarchies, event buses, or wrapper layers around NextFTC or FTC SDK hardware classes.
 - An interface is acceptable only when two real implementations exist in the codebase now.
-- Prefer plain classes, Kotlin `object`s for configuration, `data class`es for snapshots, and `enum class` or `sealed class` states handled with a `when` expression for state machines.
+- Prefer plain classes, a class's companion object for its ports and tunables (Section 13), `data class`es for snapshots, and `enum class` or `sealed class` states handled with a `when` expression for state machines.
 - Use NextFTC hardware wrappers and the FTC SDK directly.
 - Keep each mechanism in one file. Do not split small logic into separate classes; a private function inside the owning class is usually enough.
 - No speculative generality: no options, parameters, or extension points the robot does not need now. Configuration exists only for values that are physical, calibrated, or tuned.
-- Prefer clear names over comments. Comment only non-obvious mechanical behavior, units, and safety reasons.
+- Prefer clear names over comments. No comments that restate what the code already shows; comment only non-obvious behavior, units, and safety reasons, in one short line.
 - No logging framework; use the shared telemetry.
 - Brevity never overrides safety. Limit checks, timeouts, and fault handling stay, written as plainly as possible.
 
@@ -165,7 +165,7 @@ Panels is the project's dashboard. It is plugin-based; relevant plugins include 
 - Telemetry: use one telemetry path that reaches both the Driver Station and Panels, rather than formatting every line twice.
 - Graph: use for flywheel RPM against target, turret angle against target, and indexer angle against target during tuning.
 - Field: draw the Pedro pose, the active path, the turret bearing, and the selected HIVE aim point. Use Pedro's supported drawing integration if one exists.
-- Configurables: use for live tuning in tuning and test OpModes. Values found this way must be copied into committed configuration; assume edits do not persist across restarts unless verified. Configurables must never bypass safety limits: turret cable limits, maximum flywheel RPM, and servo ranges are enforced by non-configurable code. Verify how Panels discovers configurable fields in Kotlin (annotations, `@JvmField`, objects versus classes).
+- Configurables: use for live tuning in tuning and test OpModes. Values found this way must be copied into committed configuration; assume edits do not persist across restarts unless verified. Configurables must never bypass safety limits: turret cable limits, maximum flywheel RPM, and servo ranges are enforced by non-configurable code. Panels exposes static non-final fields of `@Configurable` classes: declare tunables as `@JvmField var` in the mechanism's companion object and put `@Configurable` on the mechanism class (verified, see `docs/LIBRARY_NOTES.md`).
 - Limelight proxy: use for pipeline configuration and streaming through the robot network.
 - Capture: use to record and replay data when diagnosing intermittent faults.
 - Transmitting to Panels costs loop time. Throttle detailed telemetry and keep match OpModes lean.
@@ -176,7 +176,7 @@ Panels is the project's dashboard. It is plugin-based; relevant plugins include 
 
 The team will provide device names, ports, directions, and other hardware details, usually in the request that needs them.
 
-- Record every provided name in one Kotlin configuration object (for example `config/HardwareNames.kt`) and in `docs/HARDWARE.md`. Never scatter hardware-map strings through mechanisms.
+- Record every provided device name or port as a `const val` in the owning mechanism's companion object, and in `docs/HARDWARE.md`.
 - Names must match the Control Hub Robot Configuration exactly. Never invent a device name, port, motor direction, encoder channel, servo range, or physical dimension.
 - In `docs/HARDWARE.md`, mark each item as Confirmed (provided by the team) or Pending.
 - If a piece needs a value that has not been provided, ask. If the team tells you to proceed anyway, use an explicit unconfigured state that prevents actuation and is reported at INIT, never a plausible-looking default.
@@ -343,12 +343,14 @@ Keep it flat. Create packages only when a requested piece needs them; if the tem
 ```text
 org.firstinspires.ftc.teamcode
 +-- Robot.kt     NextRobot definition
-+-- config       HardwareNames, physical parameters, calibration data
 +-- mechanisms   one file per mechanism
 +-- logic        inventory, targeting, shot coordination, launch calibration
-+-- opmodes      match TeleOp and Autonomous
++-- opModes      match TeleOp and Autonomous
 +-- tuning       calibration and component-test OpModes
++-- pedro        Pedro Constants and the team's tuning procedures
 ```
+
+All Kotlin and Java sources live in `src/main/java`; javac skips Java files under `src/main/kotlin`.
 
 Commands live next to what uses them until there are enough to justify their own file.
 
@@ -406,7 +408,7 @@ Separate data for POLLEN and NECTAR: release-geometry setting and RPM as functio
 
 Never invent calibration data. Example values may appear only in documentation and must be labeled as examples.
 
-Reject unsorted or duplicate distances, refuse to extrapolate beyond the measured range, clamp outputs to servo and RPM bounds, and treat an empty table as unconfigured. Keep the data in `config`, separate from control code. The release-geometry value is not a turret pitch.
+Reject unsorted or duplicate distances, refuse to extrapolate beyond the measured range, clamp outputs to servo and RPM bounds, and treat an empty table as unconfigured. Keep the data in the owning class's companion object, separate from the control functions. The release-geometry value is not a turret pitch.
 
 ---
 
@@ -469,7 +471,7 @@ After each shot: prevent a second simultaneous release, close the feeder, update
 
 ## 13. CONFIGURATION AND CALIBRATION
 
-Keep hardware settings and calibration in Kotlin `object`s in `config`: device names, motor directions, encoder resolution, odometry pod configuration, turret conversion and limits, servo feedback scaling, servo positions, intake and transfer power, color and distance thresholds, debounce times, tolerances, timeouts, feeder timing, controller gains, Limelight pipeline, camera-to-turret transform, HIVE coordinates, shooting regions, launch tables, vision stability requirements, and flight-time data.
+Keep hardware settings and calibration in the owning class's companion object (`const val` for fixed values, `@JvmField var` for Panels-tunable values, with `@Configurable` on the class): device names, motor directions, encoder resolution, odometry pod configuration, turret conversion and limits, servo feedback scaling, servo positions, intake and transfer power, color and distance thresholds, debounce times, tolerances, timeouts, feeder timing, controller gains, Limelight pipeline, camera-to-turret transform, HIVE coordinates, shooting regions, launch tables, vision stability requirements, and flight-time data.
 
 Every value states its unit in its name or a short comment. Never silently mix inches, centimeters, radians, degrees, ticks, and servo position units. Use NextFTC typed units only where they make the code clearer.
 
@@ -566,7 +568,7 @@ Keep these three files current, updating only the parts each change affects. Kee
 Short and factual:
 
 - Files created or changed.
-- Whether the build compiled, and the results of any tests run. Never claim success for anything not run.
+- Whether a build was run and whether it compiled, and the results of any tests run. Never claim success for anything not run.
 - What requires the physical robot to validate.
 - Calibration values required before the piece may actuate.
 - Constructor parameters left as `TODO` for components that do not exist yet.
