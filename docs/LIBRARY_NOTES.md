@@ -53,7 +53,10 @@ Not declared: `com.pedropathing.ivy:pedro` (Pedro's Ivy commands).
   6. `Telemetry.update()`
 - INIT loop: only `disabledPeriodic()` and `Telemetry.update()`. No robot/mechanism periodic, no scheduler.
   Default commands are scheduled in `beforeStart`.
-- `Telemetry` (`Telemetry.kt`): `log(key, String)`, `log(key, Any?)`, `log(line)`; reaches the Driver Station.
+- `Telemetry` (`Telemetry.kt`): `log(key, String)`, `log(key, Any?)`, `log(line)`. Default backend is the Driver
+  Station only; `addBackend(sdkTelemetry)` adds more (a set, so duplicates are ignored). `Robot` adds
+  `PanelsTelemetry.ftcTelemetry` (Panels does not mirror Driver Station telemetry on its own). Panels web UI:
+  port 8001 on the robot (panels-0.3.2+1.0.5 `StaticServer(context, 8001, ...)`).
 
 - Gamepad triggers (`triggers/CommandGamepad.kt`, `triggers/Trigger.kt`): `CommandGamepad(gamepad)` exposes
   `Trigger`s such as `square`, `cross`, `x`, bumpers, d-pad. `onTrue(cmd)` schedules on the rising edge;
