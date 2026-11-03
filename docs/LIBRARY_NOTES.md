@@ -34,6 +34,9 @@ Not declared: `com.pedropathing.ivy:pedro` (Pedro's Ivy commands).
 - Robot discovery (`RobotScanner.kt`): exactly one public `NextRobot` class, `object` or public no-arg
   constructor. Only runs under the Sloth class loader. The instance is created once at scan time and shared by
   every OpMode until the next Sloth reload.
+- Docs (nextftc.dev/robot/nextrobot, /nextopmode, /mechanisms, checked 2026-11-03): exactly one `NextRobot`, and
+  every OpMode gets the same mechanisms set. There is no documented way to run a subset of mechanisms in one OpMode;
+  a mechanism stays passive unless its default command or an OpMode makes it act.
 - OpMode discovery (`NextFTCOpModeScanner.kt`): public constructor with one parameter whose type is a supertype of
   the robot class, or no-arg. Annotations: `@NextTeleop(name, group)`, `@NextAutonomous(name, group,
   preselectTeleop)`, `@NextUtility(name, description)`.
@@ -64,6 +67,18 @@ Not declared: `com.pedropathing.ivy:pedro` (Pedro's Ivy commands).
   twice through this API throws "Port conflict"; named devices are not checked.
 - `NextMotor.throttle = x` sets `controlType = ControlType.Throttle(x)`, which throws unless x is in -1.0..1.0.
   Power is written in `MotorHook` each loop. On OpMode stop the motor resets to `Throttle(0.0)`.
+- Position control: `NextMotor(module, port, anglePerCount)`; `setPositionSetpoint(Angle)` sets
+  `ControlType.Position`. Output = PID(setpoint, `encoderPosition`) + `kS·sign(error)` + `kG` + `kCos` term, from
+  `positionConstants: MotorPositionConstants` (a `val` created by NextMotor; fields `pidConstants` (kP, kI, kD),
+  `ffCoefficients` (kS, kV, kA), `kG`, `kCos`, `kCosRatio`). `positionPID` shares the same `pidConstants` object.
+  No encoder reset API. SDK `LynxDcMotorController` clips power to ±1, so large PID output does not throw.
+- Velocity control: `setVelocitySetpoint(AngularVelocity)`; output = PID(setpoint, `encoderVelocity`) +
+  `kS·sign + kV·v + kA·a` from `velocityConstants: MotorVelocityConstants` (`pidConstants`, `ffCoefficients`).
+  `encoderVelocity` = `anglePerCount` × SDK `getVelocity()` (counts/s). The REV hub reports velocity as a
+  16-bit `short` (`LynxGetBulkInputDataResponse.velocities`), max 32,767 counts/s.
+- `NextServo(module, port)` (`actuators/NextServo.kt`): servo ports 0..5; `position` (0..1) writes through a cache.
+- Units (units-0.3.0): `Double.degrees` / `Double.radians` / `Double.rpm`, units `Degrees`, `RotationsPerMinute`, `Measure.into(unit)`; imports from
+  `dev.nextftc.units`.
 
 - `NextLimelight(name)` (`webcams/NextLimelight.kt`): `startReading(pipeline, hz = 100)`, `start()`, `stop()`,
   `setPipeline`, `setPollRate`, `latestResult`, `isRunning`, `isConnected`, `tX`, `tY`, `getDistance`,
@@ -82,6 +97,10 @@ Not declared: `com.pedropathing.ivy:pedro` (Pedro's Ivy commands).
   exposed (`ConfigurablesPlugin.scan`): in Kotlin, an `object` with `@JvmField var`, or a companion object's
   `@JvmField var` with `@Configurable` on the outer class (the static field lives on the outer class). Instance
   fields, `const val` and `val` are skipped. `@IgnoreConfigurable` excludes a class or field.
+- Nested objects: a field of a non-`java.`/`kotlin.` class type is shown as a tree of its declared fields, built
+  from the declared type at scan. Values are read and written through the static field at access time
+  (`MyField.getValue/setValue`), so pointing the field at another instance after the scan works. Used to expose
+  `NextMotor.positionConstants` (`Turret.gains`).
 
 ## Pedro 3.0.2 (core-3.0.2.jar via javap, revhub-3.0.2-sources.jar)
 

@@ -5,22 +5,32 @@ import com.pedropathing.follower.ManualDrive
 import dev.nextftc.robot.Telemetry
 import dev.nextftc.robot.opmode.BulkReadHook
 import dev.nextftc.robot.opmode.NextOpMode
-import dev.nextftc.robot.opmode.NextTeleop
+import dev.nextftc.robot.opmode.NextUtility
 import dev.nextftc.robot.triggers.CommandGamepad
 import org.firstinspires.ftc.teamcode.Robot
+import org.firstinspires.ftc.teamcode.mechanisms.Shooter
+import org.firstinspires.ftc.teamcode.mechanisms.Turret
 import org.firstinspires.ftc.teamcode.pedro.Constants
 
-@NextTeleop("Drive test")
-class DriveTest(robot: Robot) : NextOpMode(robot, BulkReadHook) {
+@NextUtility("Full test")
+class FullTest(robot: Robot) : NextOpMode(robot, BulkReadHook) {
     private val follower: Follower = Constants.create(hardwareMap)
 
     init {
-        CommandGamepad(gamepad1).square.toggleOnTrue(robot.intake.run)
+        robot.turret.targetDeg = 0.0
+        robot.shooter.targetRpm = 0.0
+        val gamepad = CommandGamepad(gamepad1)
+        gamepad.square.toggleOnTrue(robot.intake.run)
+        gamepad.circle.toggleOnTrue(robot.turret.lookAt { follower.pose() })
+        gamepad.dpadLeft.onTrue(robot.turret.step(-Turret.STEP_DEG))
+        gamepad.dpadRight.onTrue(robot.turret.step(Turret.STEP_DEG))
+        gamepad.dpadUp.onTrue(robot.shooter.stepRpm(Shooter.RPM_STEP))
+        gamepad.dpadDown.onTrue(robot.shooter.stepRpm(-Shooter.RPM_STEP))
+        gamepad.rightBumper.onTrue(robot.shooter.stepHood(Shooter.HOOD_STEP))
+        gamepad.leftBumper.onTrue(robot.shooter.stepHood(-Shooter.HOOD_STEP))
     }
 
     override fun periodic() {
-        // Pedro frame: +x forward, +y left, heading in radians, counter-clockwise positive.
-        // Field-centric: stick up drives toward field +x regardless of robot heading.
         follower.manual(
             ManualDrive.fieldCentric(
                 -gamepad1.left_stick_y.toDouble(),
