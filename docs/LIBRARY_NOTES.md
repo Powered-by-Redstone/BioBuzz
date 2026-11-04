@@ -28,6 +28,10 @@ Not declared: `com.pedropathing.ivy:pedro` (Pedro's Ivy commands).
 
 ## NextFTC v2 0.3.0 (robot-0.3.0-sources.jar)
 
+- API reference: https://kdoc.nextftc.dev/0.3.0/ (control, linalg, units, hardware, robot). The page header reads
+  `0.3.0-SNAPSHOT` (checked 2026-11-04); the installed sources stay authoritative. `/release/` and `/snapshot/`
+  track the latest versions and will drift from the pinned one.
+
 - `Mechanism` (`Mechanism.kt`): `periodic()`, `defaultCommand` (default `infinite {}`), helpers `instant`,
   `infinite`, `coroutine` that require the mechanism. No end/stop hook.
 - `NextRobot` (`NextRobot.kt`): `periodic()`, `mechanisms: Set<Mechanism>`.

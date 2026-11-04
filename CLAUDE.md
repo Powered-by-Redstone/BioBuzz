@@ -76,6 +76,7 @@ NextFTC v2
 - https://nextftc.dev/robot/commands/
 - https://nextftc.dev/robot/drive-commands/
 - https://nextftc.dev/robot/triggers/
+- https://kdoc.nextftc.dev/0.3.0/ (API reference for the pinned version; `/release/` = latest release, `/snapshot/` = latest snapshot)
 
 Pedro Pathing 3
 - https://pedropathing.com/docs
