@@ -10,6 +10,14 @@ Physical facts the code depends on. One entry per mechanism.
   No reverse, no inventory or indexer interlock yet.
 - Unmeasured: which motor direction pulls balls in.
 
+## Transfer
+
+- One motor driving the belt-coupled rollers over the transfer ramp (CLAUDE.md §4.6).
+- Actuator owner: `mechanisms/Transfer` owns the transfer motor.
+- Current behavior: `run` command at `Transfer.power` (Panels-editable, default 1.0, clamped to -1.0..1.0), like Intake.
+  TransferTest toggles it with square. No feeder interlock or fault handling yet.
+- Unmeasured: which motor direction pushes balls toward the feeder.
+
 ## Turret
 
 - One REV UltraPlanetary motor; motor encoder is the only feedback (relative, no absolute encoder) (CLAUDE.md §4.8).
