@@ -37,6 +37,10 @@ Not declared: `com.pedropathing.ivy:pedro` (Pedro's Ivy commands).
 - Docs (nextftc.dev/robot/nextrobot, /nextopmode, /mechanisms, checked 2026-11-03): exactly one `NextRobot`, and
   every OpMode gets the same mechanisms set. There is no documented way to run a subset of mechanisms in one OpMode;
   a mechanism stays passive unless its default command or an OpMode makes it act.
+- An OpMode can't pass its own small robot: Kotlin compiles `object : NextRobot {}` as a public class (anonymous
+  classes get ACC_PUBLIC, checked with javap), so the scanner would find a second robot. `MotorTest` is therefore a
+  plain SDK `LinearOpMode` (SDK 12 `@Utility(name, description)`) that drives `DcMotorImplEx(hub.motorController, port)` (`NextLynxModule.motorController`
+  is public); no mechanisms run, so it can drive ports the mechanisms own.
 - OpMode discovery (`NextFTCOpModeScanner.kt`): public constructor with one parameter whose type is a supertype of
   the robot class, or no-arg. Annotations: `@NextTeleop(name, group)`, `@NextAutonomous(name, group,
   preselectTeleop)`, `@NextUtility(name, description)`.
