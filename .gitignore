@@ -82,3 +82,6 @@ lint/tmp/
 
 # klsdb
 kls_database.db
+
+# graphify generated graph and cache
+graphify-out/

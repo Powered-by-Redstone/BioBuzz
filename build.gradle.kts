@@ -26,14 +26,17 @@ ftc {
 //        implementation(telemetry)
 //    }
 
-    next.v2 {
-        implementation(control("0.2.1"))
-        implementation(hardware("0.2.1"))
-        implementation(robot("0.2.1"))
-    }
+//    next.v2 {
+//        implementation(control("0.3.0"))
+//        implementation(hardware("0.3.0"))
+//        implementation(robot("0.3.0"))
+//    }
 }
 
 dependencies {
-    implementation("com.pedropathing:revhub:3.0.1")
-    implementation("com.pedropathing:tuning:1.0.2")
+    implementation("com.pedropathing:revhub:3.0.2")
+    implementation("com.pedropathing:tuning:1.0.3")
+    implementation("dev.nextftc.v2:control:0.3.0")
+    implementation("dev.nextftc.v2:hardware:0.3.0")
+    implementation("dev.nextftc.v2:robot:0.3.0")
 }
