@@ -39,4 +39,5 @@ dependencies {
     implementation("dev.nextftc.v2:control:0.3.0")
     implementation("dev.nextftc.v2:hardware:0.3.0")
     implementation("dev.nextftc.v2:robot:0.3.0")
+    testImplementation("junit:junit:4.13.2")
 }

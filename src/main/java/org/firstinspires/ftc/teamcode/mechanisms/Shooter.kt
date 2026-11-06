@@ -8,15 +8,16 @@ import dev.nextftc.hardware.actuators.NextServo
 import dev.nextftc.robot.Mechanism
 import dev.nextftc.robot.Telemetry
 import dev.nextftc.units.RotationsPerMinute
-import dev.nextftc.units.degrees
+import dev.nextftc.units.radians
 import dev.nextftc.units.rpm
+import kotlin.math.PI
 
 @Configurable
 class Shooter : Mechanism {
     companion object {
         const val MOTOR_PORT = 3
         const val HOOD_PORT = 0
-        const val DEGREES_PER_COUNT = 360.0 / 28 // motor encoder, so RPM is at the motor shaft
+        const val RADIANS_PER_COUNT = 2 * PI / 28 // motor encoder, so RPM is at the motor shaft
         const val MAX_RPM = 6000.0
         const val RPM_STEP = 100.0
         const val HOOD_STEP = 0.05
@@ -33,7 +34,7 @@ class Shooter : Mechanism {
             field = position.coerceIn(0.0, 1.0)
         }
 
-    private val motor = NextMotor(RobotController.expansionHub, MOTOR_PORT, DEGREES_PER_COUNT.degrees)
+    private val motor = NextMotor(RobotController.expansionHub, MOTOR_PORT, RADIANS_PER_COUNT.radians)
     private val servo = NextServo(RobotController.expansionHub, HOOD_PORT)
 
     init {

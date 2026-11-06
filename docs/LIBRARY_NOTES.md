@@ -15,6 +15,7 @@ Verified facts only. Installed code wins over documentation. Sources are Gradle 
 | Ivy `com.pedropathing.ivy:core` | 1.1.1 | transitive (NextFTC robot) |
 | Pedro `com.pedropathing:revhub` (+ `core`) | 3.0.2 | `dependencies` |
 | Pedro `com.pedropathing:tuning` | 1.0.3 (asks for revhub 3.0.1, resolved to 3.0.2) | `dependencies` |
+| JUnit `junit:junit` | 4.13.2 (unit tests only) | `testImplementation` |
 
 Not declared: `com.pedropathing.ivy:pedro` (Pedro's Ivy commands).
 
@@ -25,6 +26,8 @@ Not declared: `com.pedropathing.ivy:pedro` (Pedro's Ivy commands).
 - All sources (Kotlin and Java) live in `src/main/java`. javac only compiles `src/main/java`; Java files placed
   under `src/main/kotlin` were skipped (`compileDebugJavaWithJavac` reported `NO-SOURCE`) and their classes were
   missing from the APK, while Kotlin still compiled against them.
+
+- Unit tests: `src/test/java`, run with `./gradlew --offline testDebugUnitTest` (plain JVM, no robot needed).
 
 ## NextFTC v2 0.3.0 (robot-0.3.0-sources.jar)
 

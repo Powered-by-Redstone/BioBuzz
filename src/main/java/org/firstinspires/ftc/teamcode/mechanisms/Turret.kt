@@ -8,51 +8,66 @@ import dev.nextftc.hardware.actuators.NextMotor
 import dev.nextftc.robot.Mechanism
 import dev.nextftc.robot.Telemetry
 import dev.nextftc.units.Degrees
-import dev.nextftc.units.degrees
+import dev.nextftc.units.radians
+import kotlin.math.PI
 import kotlin.math.atan2
 
 @Configurable
 class Turret : Mechanism {
     companion object {
         const val MOTOR_PORT = 2
-        const val DEGREES_PER_COUNT = 0.0
-        const val MIN_DEG = -60.0
-        const val MAX_DEG = 60.0
-        const val STEP_DEG = 10.0
+        const val RADIANS_PER_COUNT = 0.0
+        const val MIN_RAD = -PI / 3 // -60°
+        const val MAX_RAD = PI / 3 // 60°
+        const val STEP_RAD = PI / 18 // 10°
         @JvmField var gains = MotorPositionConstants()
         @JvmField var lookX = 0.0
         @JvmField var lookY = 0.0
     }
 
-    var targetDeg = 0.0
-        set(deg) {
-            val wrapped = (deg - MIN_DEG).mod(360.0) + MIN_DEG
-            field = if (wrapped > (MIN_DEG + MAX_DEG + 360) / 2) MIN_DEG else wrapped.coerceAtMost(MAX_DEG)
+    var targetRad = 0.0
+        set(rad) {
+            field = chooseTurretAngle(rad, field, MIN_RAD, MAX_RAD)
         }
 
-    private val motor = NextMotor(RobotController.expansionHub, MOTOR_PORT, DEGREES_PER_COUNT.degrees)
+    private val motor = NextMotor(RobotController.expansionHub, MOTOR_PORT, RADIANS_PER_COUNT.radians)
 
     init {
         gains = motor.positionConstants
     }
 
-    private fun aim() = motor.setPositionSetpoint(targetDeg.degrees)
+    private fun aim() = motor.setPositionSetpoint(targetRad.radians)
 
     val fixedAngle = infinite { aim() }
 
-    fun step(deg: Double) = instant { targetDeg += deg }
+    fun step(rad: Double) = instant { targetRad += rad }
 
     override val defaultCommand = fixedAngle
 
     //assumes the turret axis sits on the pinpoint origin
-    fun lookAt(pose: () -> Pose) = infinite {
+    // null target reads Panels lookX/lookY every loop, so edits apply live
+    fun lookAt(target: Pose? = null, pose: () -> Pose) = infinite {
         val p = pose()
-        targetDeg = Math.toDegrees(p.heading() - atan2(lookY - p.y(), lookX - p.x()))
+        val t = target ?: Pose(lookX, lookY)
+        targetRad = p.heading() - atan2(t.y() - p.y(), t.x() - p.x())
         aim()
     }
 
     override fun periodic() {
         Telemetry.log("Turret deg", motor.encoderPosition.into(Degrees))
-        Telemetry.log("Turret target deg", targetDeg)
+        Telemetry.log("Turret target deg", Math.toDegrees(targetRad))
+    }
+}
+
+// Turret angle (rad) for direction rad: the equivalent angle (rad ± 2π) nearest the current one; if that is past a
+// cable limit, unwind the other way round; if no equivalent is reachable, park at the nearer limit.
+fun chooseTurretAngle(rad: Double, current: Double, min: Double, max: Double): Double {
+    val nearest = current + (rad - current + PI).mod(2 * PI) - PI
+    val otherWay = if (nearest > current) nearest - 2 * PI else nearest + 2 * PI
+    return when {
+        nearest in min..max -> nearest
+        otherWay in min..max -> otherWay
+        (nearest - max).mod(2 * PI) < (min - nearest).mod(2 * PI) -> max
+        else -> min
     }
 }
