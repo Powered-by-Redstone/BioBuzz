@@ -49,3 +49,15 @@ Physical facts the code depends on. One entry per mechanism.
   `Shooter.gains` (kP/kI/kD in `pidConstants`, kS/kV/kA in `ffCoefficients`), all 0.
 - FullTest and TurretTest: dpad up/down ±100 RPM, right/left bumper hood ±0.05; both start at 0 RPM.
 - Unmeasured: gearbox ratio to the flywheel, hood servo's safe range.
+
+## Indicator
+
+- goBILDA RGB Indicator Light on a servo port; shows drivers and programmers what the robot is doing.
+- Actuator owner: `mechanisms/Indicator` owns the light.
+- Signal (goBILDA Product Insight #4): below 1100 µs off, 1100–1900 µs a red-to-violet gradient, above 1900 µs
+  white. Positions in `NextRGBIndicator.Color` assume the SDK default 600–2400 µs range. No brightness control,
+  so no fading; daisy-chained lights all show the same signal.
+- Patterns: solid, blink (2 Hz), fast blink (6 Hz). Idle: a glow that wanders over the red-violet range (two sine waves, 3 s and 7.3 s)
+  once the OpMode starts.
+  The light stays dark during INIT (no scheduler).
+- No robot states yet. States go in the default command's `when`, highest priority first.

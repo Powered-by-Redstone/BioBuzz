@@ -16,6 +16,7 @@ Every device the code uses. Confirmed = provided by the team; Pending = not yet 
 | Hood servo | Expansion Hub, servo port 0 | Position 0..1 | Confirmed | `Shooter.HOOD_PORT` |
 | Hood servo usable range | | Full 0..1 assumed safe | Pending (check for hard stops) | `Shooter.hood` |
 | Limelight 3A | config name `"limelight"` | Pipeline 0 | Pending | `Limelight` companion |
+| goBILDA RGB Indicator Light (3118-0808-0002) | Control Hub, servo port 0 | Port chosen in code (2026-11-07); wire to match | Pending (wire to port 0) | `Indicator.SERVO_PORT` |
 
 Port-addressed devices are not checked against the Robot Configuration. If a named device is also configured on Control
 Hub motor port 2, both write to the same motor and NextFTC does not detect the conflict.
