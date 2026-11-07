@@ -474,7 +474,7 @@ After each shot: prevent a second simultaneous release, close the feeder, update
 
 Keep hardware settings and calibration in the owning class's companion object (`const val` for fixed values, `@JvmField var` for Panels-tunable values, with `@Configurable` on the class): device names, motor directions, encoder resolution, odometry pod configuration, turret conversion and limits, servo feedback scaling, servo positions, intake and transfer power, color and distance thresholds, debounce times, tolerances, timeouts, feeder timing, controller gains, Limelight pipeline, camera-to-turret transform, HIVE coordinates, shooting regions, launch tables, vision stability requirements, and flight-time data.
 
-Every value states its unit in its name or a short comment. Never silently mix inches, centimeters, radians, degrees, ticks, and servo position units. Use NextFTC typed units only where they make the code clearer.
+Every value states its unit in its name or a short comment. Angles are radians everywhere in code (as Pedro's are); convert to degrees only for telemetry. Never silently mix inches, centimeters, radians, degrees, ticks, and servo position units. Use NextFTC typed units only where they make the code clearer.
 
 Unknown physical parameters stay in an explicit unconfigured state that prevents actuation, never arbitrary plausible values. Panels Configurables may expose tunable values in tuning OpModes, subject to Section 1.5.
 
@@ -486,7 +486,7 @@ Normal operation is highly automated. The driver mainly controls chassis motion 
 
 Provide simple controls for enabling and disabling collection, raising and lowering the FLOWER ramp, disabling automatic shooting, safely stopping active mechanisms, and selecting alliance before the match. Do not build an override interface unless asked.
 
-Never guess button mappings. Use the mapping the team specifies; if none is given, ask, and keep mappings in one place.
+Never guess button mappings. Use the mapping the team specifies; if none is given, ask. All mappings live in `opModes/Controls.kt` as one `CommandGamepad.bindX(robot)` function per mechanism group; OpModes call only the groups they need, and new controls go into a group there.
 
 ---
 

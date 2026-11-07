@@ -15,7 +15,7 @@ Physical facts the code depends on. One entry per mechanism.
 - One motor driving the belt-coupled rollers over the transfer ramp (CLAUDE.md §4.6).
 - Actuator owner: `mechanisms/Transfer` owns the transfer motor.
 - Current behavior: `run` command at `Transfer.power` (Panels-editable, default 1.0, clamped to -1.0..1.0), like Intake.
-  TransferTest toggles it with square. No feeder interlock or fault handling yet.
+  FullTest toggles it with cross. No feeder interlock or fault handling yet.
 - Unmeasured: which motor direction pushes balls toward the feeder.
 
 ## Turret
@@ -24,14 +24,17 @@ Physical facts the code depends on. One entry per mechanism.
 - Actuator owner: `mechanisms/Turret` owns the turret motor.
 - Reference: place the turret at the reference before powering the robot. The hub zeroes the encoder at power-up;
   the code never resets it, so the angle survives OpMode changes.
-- Turret degrees are clockwise from the reference. Soft limits -60°..+60° (team, 2026-11-03); every setpoint is clamped.
-- Commands: `fixedAngle` (default) holds `targetDeg`. `lookAt(pose)` sets `targetDeg` toward Panels
-  `Turret.lookX/lookY` (field inches) from the Pedro pose. `step(deg)` shifts it; dpad left/right step 10° in
-  FullTest and TurretTest, which both start at 0°. FullTest's circle toggles `lookAt`. The `targetDeg` setter wraps
-  any angle into range; one past the limits parks at the nearer limit. `targetDeg` is not in Panels.
+- Turret angles (radians in code, degrees in telemetry) are clockwise from the reference. Soft limits `MIN_RAD`..`MAX_RAD`
+  = -60°..+60° (team, 2026-11-03); every setpoint is clamped.
+- Commands: `fixedAngle` (default) holds `targetRad`. `lookAt(target, pose)` sets `targetRad` toward
+  `target` (Pedro field inches; default: Panels `Turret.lookX/lookY`, read live) from the Pedro pose. `step(rad)` shifts it; dpad left/right step 10° in
+  FullTest and TurretTest, which both start at 0°. FullTest's circle toggles `lookAt`. The `targetRad` setter
+  (`chooseTurretAngle`) takes the equivalent angle (±360°) nearest the current target, unwinds the other way round
+  when that one is past a limit, and parks at the nearer limit when no equivalent is reachable. Works for limits
+  wider than 360°; unit-tested in `TurretAngleTest`. `targetRad` is not in Panels.
   Gains in Panels under `Turret.gains` (kP/kI/kD in `pidConstants`, kS in `ffCoefficients`), all 0.
 - Geometry assumptions (unmeasured): turret axis at the Pinpoint origin, reference facing robot forward.
-- Unmeasured: gearing (`DEGREES_PER_COUNT` = 360 / (28 × gearbox ratio × turret ratio); while 0 the encoder
+- Unmeasured: gearing (`RADIANS_PER_COUNT` = 2π / (28 × gearbox ratio × turret ratio); while 0 the encoder
   always reads 0°, so any kP > 0 with a non-zero target spins the motor without stopping), usable travel beyond ±60°, and which motor direction turns clockwise.
 - Limitation: PID can overshoot past the soft limits; nothing stops the motor outside them yet.
 
