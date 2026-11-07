@@ -35,13 +35,17 @@ For every request:
 3. Confirm you have the hardware information the piece needs (Section 2). If anything required for actuation is missing, ask.
 4. Check the library APIs the piece uses against `docs/LIBRARY_NOTES.md`. If they are not covered, are uncertain, or the installed versions changed, verify them against the installed dependency source or official documentation and update the notes. Never invent method names or imports.
 5. For a non-trivial piece, state in a few lines what it owns, its inputs and outputs, and its states. Proceed without waiting for approval unless you found a conflict or a safety-relevant ambiguity.
-6. Implement, following Section 0.3.
+6. Implement, following Section 0.4.
 7. Write tests only where Section 17 requires them.
 8. Do not build after every change. Run the Gradle build, and any tests you wrote, only when the team asks.
 9. Update the `docs/` files the change affects (Section 20).
 10. Report as described in Section 21.
 
-### 0.3 Code style
+### 0.3 Branches
+
+When the team starts work on something new, create a branch from the latest `main` with a short descriptive name (for example `transfer-mechanism`, `turret-unwind`) and do all of that work there. Follow-ups to the current task stay on its branch. `main` is push-protected and only changes through an approved pull request.
+
+### 0.4 Code style
 
 The code must be concise and readable by students. Write the smallest amount of plain Kotlin that does the job correctly and safely.
 
