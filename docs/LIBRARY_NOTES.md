@@ -91,6 +91,12 @@ Not declared: `com.pedropathing.ivy:pedro` (Pedro's Ivy commands).
   `encoderVelocity` = `anglePerCount` × SDK `getVelocity()` (counts/s). The REV hub reports velocity as a
   16-bit `short` (`LynxGetBulkInputDataResponse.velocities`), max 32,767 counts/s.
 - `NextServo(module, port)` (`actuators/NextServo.kt`): servo ports 0..5; `position` (0..1) writes through a cache.
+- `NextRGBIndicator(module, port)` (`actuators/NextRGBIndicator.kt`): `NextServo` subclass for the goBILDA RGB
+  Indicator Light. `Color` enum with servo positions (OFF 0.0, RED 0.279 … VIOLET 0.722, WHITE 1.0),
+  `setColor(Color)`, `setColor(pwm: Double)`, `off()`. `setBrightness(b)` does not dim: it sets the PWM range to
+  500..2500·b µs, which shifts every color (b = 1: RED = 1058 µs = off, VIOLET = 1944 µs = white). Do not call it.
+- FTC SDK default servo PWM range is 600–2400 µs (`PwmControl.PwmRange.defaultRange`, RobotCore-12.0.0-sources
+  `PwmControl.java:107-111`).
 - Units (units-0.3.0): `Double.degrees` / `Double.radians` / `Double.rpm`, units `Degrees`, `RotationsPerMinute`, `Measure.into(unit)`; imports from
   `dev.nextftc.units`.
 
@@ -102,6 +108,16 @@ Not declared: `com.pedropathing.ivy:pedro` (Pedro's Ivy commands).
 ## Ivy 1.1.1 (core-1.1.1.jar via javap)
 
 - `CommandBuilder` implements `Command`. `Commands.instant/infinite/conditional/branch/lazy/match/waitMs/waitUntil`.
+- Defaults (`CommandBuilder()`): priority 0, interrupted `END`, blocked `CANCEL`, conflict `OVERRIDE`.
+- `Scheduler.schedule` (javap -c): if any required mechanism is held by a higher-priority command, the new one is
+  blocked (`CANCEL` drops it, `QUEUE` queues it). Equal priority uses the conflict behavior (`OVERRIDE` interrupts
+  the holder, `QUEUE` queues, `CANCEL` drops). Lower priority holders are interrupted (`END` ends them, `SUSPEND`
+  parks them).
+- `Scheduler.execute`: runs commands, then starts queued commands whose requirements are free, then resumes
+  suspended ones in the order they were suspended. Resume ignores priority, so a mechanism's default command
+  (suspended first) comes back before a lower-priority command that is still wanted.
+- NextFTC wraps each default command (`Mechanism.kt` `forceDefaultCommand`): priority `Int.MIN_VALUE`, interrupted
+  `SUSPEND`, conflict and blocked `QUEUE`.
 - `Commands.conditional(cond, a, b)` picks `a` or `b` when it starts; requirements are the union of both,
   priority the max.
 

@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode
 import com.bylazar.telemetry.PanelsTelemetry
 import dev.nextftc.robot.NextRobot
 import dev.nextftc.robot.Telemetry
+import org.firstinspires.ftc.teamcode.mechanisms.Indicator
 import org.firstinspires.ftc.teamcode.mechanisms.Intake
 import org.firstinspires.ftc.teamcode.mechanisms.Limelight
 import org.firstinspires.ftc.teamcode.mechanisms.Shooter
@@ -15,7 +16,8 @@ class Robot : NextRobot {
     val transfer = Transfer()
     val turret = Turret()
     val shooter = Shooter()
-    override val mechanisms = setOf(limelight, intake, transfer, turret, shooter)
+    val indicator = Indicator()
+    override val mechanisms = setOf(limelight, intake, transfer, turret, shooter, indicator)
 
     init {
         Telemetry.addBackend(PanelsTelemetry.ftcTelemetry)
