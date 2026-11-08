@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.mechanisms
 
+import com.bylazar.configurables.annotations.Configurable
 import dev.nextftc.hardware.RobotController
 import dev.nextftc.hardware.actuators.NextRGBIndicator
 import dev.nextftc.hardware.actuators.NextRGBIndicator.Color
@@ -8,6 +9,7 @@ import dev.nextftc.robot.Telemetry
 import kotlin.math.PI
 import kotlin.math.sin
 
+@Configurable
 class Indicator : Mechanism {
     companion object {
         const val SERVO_PORT = 0
