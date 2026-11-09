@@ -23,6 +23,7 @@ class Gate : Mechanism {
         @JvmField val OPEN_POS = 0.35
         @JvmField val HOLD_POS = 0.5
         @JvmField val CLOSE_POS = 0.55
+
     }
 
     private val servo = NextServo(RobotController.controlHub, SERVO_PORT)
@@ -44,6 +45,11 @@ class Gate : Mechanism {
 
     val hold = command {
         servo.position = HOLD_POS
+        wait(0.3)
+    }
+    val intake_to_transfer = command {
+        waitUntil { distance <= 60  }
+        servo.position = CLOSE_POS
         wait(0.3)
     }
 

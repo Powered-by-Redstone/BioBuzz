@@ -13,6 +13,7 @@ class GateTest(robot: Robot) : NextOpMode(robot, BulkReadHook) {
         gamepad.cross.onTrue(robot.gate.open)
         gamepad.square.onTrue(robot.gate.close)
         gamepad.triangle.onTrue(robot.gate.hold)
+        gamepad.circle.onTrue(robot.gate.intake_to_transfer)
     }
     override fun start() {
     }
