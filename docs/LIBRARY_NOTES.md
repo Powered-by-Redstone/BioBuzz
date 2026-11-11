@@ -95,6 +95,21 @@ Not declared: `com.pedropathing.ivy:pedro` (Pedro's Ivy commands).
   Indicator Light. `Color` enum with servo positions (OFF 0.0, RED 0.279 … VIOLET 0.722, WHITE 1.0),
   `setColor(Color)`, `setColor(pwm: Double)`, `off()`. `setBrightness(b)` does not dim: it sets the PWM range to
   500..2500·b µs, which shifts every color (b = 1: RED = 1058 µs = off, VIOLET = 1944 µs = white). Do not call it.
+- `NextColor.rgb(r, g, b)` (`sensors/colors/NextColor.kt`) throws unless each value is in 0..255.
+  REV Color Sensor V3 `red()`/`green()`/`blue()` are raw counts 0..65535 (Hardware-12.0.0-sources
+  `BroadcomColorSensorImpl.updateColors`), so never pass them to `NextColor.rgb`. `getNormalizedColors()` is
+  clipped to 0..1.
+- `NextColorDistanceSensor(name, hasDistance)` (`sensors/NextColorDistanceSensor.kt`): `update()` reads
+  normalized colors × 255 and distance into a cache; call it once per loop (0.3.1-SNAPSHOT binds it to the
+  motor event loop instead, but replaces `Telemetry` with a new module; not adopted 2026-11-11). `color`, `hue`, `saturation`,
+  `value`, `getDistance(unit)` read the cache (distance NaN before the first `update()`). `gain` is software gain.
+  REV V3 normalizes raw counts by `colorSaturation = 65535` (`BroadcomColorSensor.Parameters`), so at gain 1 a
+  ball reads only a few of 255. HSV is computed from the truncated integer RGB, so low readings give garbage
+  hue/saturation. Setting `gain` writes a field only (no I2C), so setting it every loop is cheap.
+- `ColorProfile(space, color, tolerance)` (`sensors/colors/ColorProfile.kt`): HSV match = hue distance (wraps at
+  360°) and |Δs|, |Δv| each within tolerance. `color` and `tolerance` are `NextColor`s stored as RGB and converted
+  back to HSV through integer RGB, so give the tolerance saturation > 0 (else its hue becomes 0) and value 1
+  (= brightness ignored). HSV is cached at construction: changing a profile needs a new instance.
 - FTC SDK default servo PWM range is 600–2400 µs (`PwmControl.PwmRange.defaultRange`, RobotCore-12.0.0-sources
   `PwmControl.java:107-111`).
 - Units (units-0.3.0): `Double.degrees` / `Double.radians` / `Double.rpm`, units `Degrees`, `RotationsPerMinute`, `Measure.into(unit)`; imports from

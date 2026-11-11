@@ -9,12 +9,6 @@ import org.firstinspires.ftc.teamcode.Robot
 @NextUtility("Gate test")
 class GateTest(robot: Robot) : NextOpMode(robot, BulkReadHook) {
     init {
-        val gamepad = CommandGamepad(gamepad1)
-        gamepad.cross.onTrue(robot.gate.open)
-        gamepad.square.onTrue(robot.gate.close)
-        gamepad.triangle.onTrue(robot.gate.hold)
-        gamepad.circle.onTrue(robot.gate.intake_to_transfer)
-    }
-    override fun start() {
+        CommandGamepad(gamepad1).bindGate(robot)
     }
 }

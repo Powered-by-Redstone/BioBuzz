@@ -19,7 +19,7 @@ class Robot : NextRobot {
     val shooter = Shooter()
     val indicator = Indicator()
     val gate = Gate()
-    override val mechanisms = setOf(/*limelight, intake, transfer, turret, shooter, indicator, */gate)
+    override val mechanisms = setOf(limelight, intake, transfer, turret, shooter, indicator, gate)
 
     init {
         Telemetry.addBackend(PanelsTelemetry.ftcTelemetry)
