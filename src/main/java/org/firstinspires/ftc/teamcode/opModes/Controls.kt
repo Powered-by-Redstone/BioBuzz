@@ -6,8 +6,6 @@ import org.firstinspires.ftc.teamcode.Robot
 import org.firstinspires.ftc.teamcode.mechanisms.Shooter
 import org.firstinspires.ftc.teamcode.mechanisms.Turret
 
-// Every gamepad mapping lives here, grouped by mechanism; each OpMode binds only the groups it needs.
-
 fun CommandGamepad.bindCollection(robot: Robot) {
     square.toggleOnTrue(robot.intake.run)
     cross.toggleOnTrue(robot.transfer.run)
@@ -27,4 +25,11 @@ fun CommandGamepad.bindShooter(robot: Robot) {
     dpadDown.onTrue(robot.shooter.stepRpm(-Shooter.RPM_STEP))
     rightBumper.onTrue(robot.shooter.stepHood(Shooter.HOOD_STEP))
     leftBumper.onTrue(robot.shooter.stepHood(-Shooter.HOOD_STEP))
+}
+
+fun CommandGamepad.bindGate(robot: Robot) {
+    cross.onTrue(robot.gate.open)
+    square.onTrue(robot.gate.close)
+    triangle.onTrue(robot.gate.hold)
+    circle.onTrue(robot.gate.acceptBall)
 }
