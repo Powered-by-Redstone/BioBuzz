@@ -18,6 +18,10 @@ class Intake : Mechanism {
 
     val run = infinite { motor.throttle = power.coerceIn(-1.0..1.0) }.setEnd { motor.throttle = 0.0 }
 
+    // relative to the sign of power, so they stay right if power is made negative to flip the motor
+    val intaking get() = motor.throttle * power > 0
+    val rejecting get() = motor.throttle * power < 0
+
     val reject = coroutine {
         try {
             motor.throttle = -power.coerceIn(-1.0..1.0)

@@ -44,7 +44,7 @@ class Robot : NextRobot {
     val transfer = Transfer()
     val turret = Turret()
     val shooter = Shooter()
-    val indicator = Indicator()
+    val indicator = Indicator { state() }
     val gate = Gate()
     val guard = Guard()
     override val mechanisms = setOf(limelight, intake, transfer, turret, shooter, indicator, gate, guard)
@@ -57,6 +57,17 @@ class Robot : NextRobot {
     fun preload() {
         balls.clear()
         repeat(4) { balls.addLast(BallType.POLLEN) }
+    }
+
+    // what the indicator shows, highest priority first
+    fun state() = when {
+        guard.isOpen -> Indicator.State.SHOOTING
+        intake.rejecting -> Indicator.State.REJECTING
+        intake.intaking -> Indicator.State.INTAKING
+        balls.isNotEmpty() && limelight.hiveState == HiveState.NA -> Indicator.State.NO_HIVE
+        balls.size >= MAX_BALLS -> Indicator.State.FULL
+        balls.isNotEmpty() -> Indicator.State.WAITING_TO_SHOOT
+        else -> Indicator.State.IDLE
     }
 
     fun hive() = when (limelight.hiveState) {
