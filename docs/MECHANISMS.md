@@ -137,7 +137,20 @@ Physical facts the code depends on. One entry per mechanism.
 - Patterns: solid, blink (2 Hz), fast blink (6 Hz). Idle: a glow that wanders over the red-violet range (two sine waves, 3 s and 7.3 s)
   once the OpMode starts.
   The light stays dark during INIT (no scheduler).
-- No robot states yet. States go in the default command's `when`, highest priority first.
+- Robot states (`Robot.state()`, highest priority first; telemetry "Robot state"):
+
+  | State | Light | When |
+  |---|---|---|
+  | SHOOTING | white, solid | guard open |
+  | REJECTING | red, fast blink | intake reversing |
+  | INTAKING | blue, solid | intake pulling in |
+  | NO_HIVE | orange, blink | balls waiting but the Limelight sees no HIVE, so shots can't aim |
+  | FULL | green, solid | 4 balls: collect has stopped |
+  | WAITING_TO_SHOOT | green, blink | balls waiting (flywheel spinning up or turret aligning) |
+  | IDLE | wandering glow | none of the above |
+
+  States come from commanded outputs (guard position, intake throttle) and `Robot.balls`, not from sensors. The
+  glow passes through every gradient color, so a solid state is only distinct once it holds for a second or two.
 
 ## Final robot checklist
 
@@ -188,5 +201,7 @@ Not built yet / known gaps
   `Robot.balls` by hand.
 - Turret PID can overshoot past the soft limits; nothing stops the motor outside them (accepted: the PID is tuned
   on a narrow range).
-- Indicator shows no robot states yet (for example ready to fire).
+- Limelight aiming: the turret aims from the Pedro pose alone; the Limelight only reports which HIVE state it sees.
+  CLAUDE.md §10: refine the aim with fresh tag detections (`tx`) once the camera-to-turret geometry and sign are
+  calibrated, without fighting the pose-based aim.
 - No `Drivetrain` mechanism: the follower lives in the OpMode, so nothing stops a second writer to the drive motors.

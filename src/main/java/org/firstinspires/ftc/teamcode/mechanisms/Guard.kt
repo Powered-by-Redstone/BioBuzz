@@ -24,6 +24,8 @@ class Guard : Mechanism {
     // closes itself: the next queued shot keeps the guard, so the default command doesn't run in between
     val open = infinite { servo.position = OPEN }.setEnd { servo.position = CLOSED }
 
+    val isOpen get() = servo.position == OPEN
+
     override fun periodic() {
         Telemetry.log("Guard position", servo.position)
     }
