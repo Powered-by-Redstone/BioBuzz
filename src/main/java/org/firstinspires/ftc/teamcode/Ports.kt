@@ -15,4 +15,5 @@ object ExpansionHub {
     const val SHOOTER_MOTOR = 3
     const val HOOD_SERVO = 0
     const val RAIL_SERVO = 1
+    const val GUARD_SERVO = 2
 }

@@ -18,6 +18,7 @@ Every device the code uses. Confirmed = provided by the team; Pending = not yet 
 | Hood servo usable range | | Full 0..1 assumed safe | Pending (check for hard stops) | `Shooter.hood` |
 | Rail servo | Expansion Hub, servo port 1 | Port chosen in code (2026-11-11); wire to match | Pending (wire to port 1) | `ExpansionHub.RAIL_SERVO` |
 | Rail positions | | POLLEN and NECTAR both 0 until measured | Pending | `Shooter.railPollen`, `railNectar` |
+| Guard servo | Expansion Hub, servo port 2 | 1 = closed (balls wait), 0 = open (team, 2026-11-12) | Confirmed | `ExpansionHub.GUARD_SERVO`, `Guard.CLOSED/OPEN` |
 | Limelight 3A | config name `"limelight"` | Pipeline 0 | Pending | `Limelight` |
 | goBILDA RGB Indicator Light (3118-0808-0002) | Control Hub, servo port 4 | Moved off broken port 0 (2026-11-11); wire to match | Pending (wire to port 4) | `ControlHub.INDICATOR_SERVO` |
 | Gate servo | Control Hub, servo port 5 | Position 0..1; moved off port 4, which the Indicator uses (2026-11-12); wire to match | Pending (wire to port 5) | `ControlHub.GATE_SERVO` |
