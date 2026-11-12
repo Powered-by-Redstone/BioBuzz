@@ -96,15 +96,20 @@ Not declared: `com.pedropathing.ivy:pedro` (Pedro's Ivy commands).
   `setColor(Color)`, `setColor(pwm: Double)`, `off()`. `setBrightness(b)` does not dim: it sets the PWM range to
   500..2500·b µs, which shifts every color (b = 1: RED = 1058 µs = off, VIOLET = 1944 µs = white). Do not call it.
 - `NextColor.rgb(r, g, b)` (`sensors/colors/NextColor.kt`) throws unless each value is in 0..255.
-  REV Color Sensor V3 `red()`/`green()`/`blue()` are raw counts 0..65535 (Hardware-12.0.0-sources
-  `BroadcomColorSensorImpl.updateColors`), so never pass them to `NextColor.rgb`. `getNormalizedColors()` is
-  clipped to 0..1.
-- `NextColorDistanceSensor(name, hasDistance)` (`sensors/NextColorDistanceSensor.kt`): `update()` reads
+  REV color sensor `red()`/`green()`/`blue()` are raw counts (V2: up to 10240 at the default 24 ms integration,
+  Hardware-12.0.0-sources `AMSColorSensor.Parameters.getMaximumReading`), so never pass them to `NextColor.rgb`.
+  `getNormalizedColors()` is clipped to 0..1.
+- `NextColorDistanceSensor(module, bus, hasDistance)` (`sensors/NextColorDistanceSensor.kt`): addresses the sensor
+  by hub I2C bus (0..3), no Robot Configuration name; claims the bus. Builds `LynxI2cColorRangeSensor`, the SDK's
+  REV Color Sensor V2 driver (TMD37821 at 0x39); a V3 (APDS-9151 at 0x52) needs `RevColorSensorV3` instead, so this
+  constructor is V2 only. The robot's gate sensor is a V2 (team, 2026-11-12). V2 `getNormalizedColors()` polls
+  until data is valid with `delay(3)` between reads (up to 2 s; returns zeros at once if disconnected).
+- `NextColorDistanceSensor(name, hasDistance)` (same file): `update()` reads
   normalized colors × 255 and distance into a cache; call it once per loop (0.3.1-SNAPSHOT binds it to the
   motor event loop instead, but replaces `Telemetry` with a new module; not adopted 2026-11-11). `color`, `hue`, `saturation`,
   `value`, `getDistance(unit)` read the cache (distance NaN before the first `update()`). `gain` is software gain.
-  REV V3 normalizes raw counts by `colorSaturation = 65535` (`BroadcomColorSensor.Parameters`), so at gain 1 a
-  ball reads only a few of 255. HSV is computed from the truncated integer RGB, so low readings give garbage
+  V2 normalizes raw counts by `getMaximumReading()` (10240 by default), so at gain 1 a ball reads only a few
+  of 255 (observed 2026-11-11). HSV is computed from the truncated integer RGB, so low readings give garbage
   hue/saturation. Setting `gain` writes a field only (no I2C), so setting it every loop is cheap.
 - `ColorProfile(space, color, tolerance)` (`sensors/colors/ColorProfile.kt`): HSV match = hue distance (wraps at
   360°) and |Δs|, |Δv| each within tolerance. `color` and `tolerance` are `NextColor`s stored as RGB and converted

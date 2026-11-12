@@ -12,7 +12,6 @@ enum class HiveState {
 
 class Limelight : Mechanism {
     companion object {
-        const val NAME = "limelight"
         const val PIPELINE = 0
         val RED_A_TAGS = 34..37
         val RED_B_TAGS = 30..33
@@ -20,7 +19,7 @@ class Limelight : Mechanism {
         val BLUE_B_TAGS = 42..45
     }
 
-    private val limelight = NextLimelight(NAME)
+    private val limelight = NextLimelight("limelight")
 
     var hiveState = HiveState.NA
         private set

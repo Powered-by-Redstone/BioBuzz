@@ -13,12 +13,11 @@ import dev.nextftc.robot.Mechanism
 import dev.nextftc.robot.coroutine.command
 import dev.nextftc.robot.Telemetry
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit
+import org.firstinspires.ftc.teamcode.ControlHub
 
 @Configurable
 class Gate : Mechanism {
     companion object {
-        const val SERVO_PORT = 4
-        const val COLOR_SENSOR_BUS = 2
         @JvmField var OPEN_POS = 0.35
         @JvmField var HOLD_POS = 0.5
         @JvmField var CLOSE_POS = 0.55
@@ -32,9 +31,9 @@ class Gate : Mechanism {
         val BLUE = ColorProfile(ColorSpace.HSV, NextColor.hsv(220f, 0.6f, 1f), BALL_TOLERANCE)
     }
 
-    private val servo = NextServo(RobotController.controlHub, SERVO_PORT)
+    private val servo = NextServo(RobotController.controlHub, ControlHub.GATE_SERVO)
 
-    private val colorSensor = NextColorDistanceSensor("sensor_color", hasDistance = true)
+    private val colorSensor = NextColorDistanceSensor(RobotController.controlHub, ControlHub.GATE_COLOR_SENSOR_I2C_BUS, hasDistance = true)
 
     val open = command {
         servo.position = OPEN_POS

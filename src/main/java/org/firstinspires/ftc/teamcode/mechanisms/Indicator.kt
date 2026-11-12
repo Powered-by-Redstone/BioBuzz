@@ -8,16 +8,13 @@ import dev.nextftc.robot.Mechanism
 import dev.nextftc.robot.Telemetry
 import kotlin.math.PI
 import kotlin.math.sin
+import org.firstinspires.ftc.teamcode.ControlHub
 
 @Configurable
 class Indicator : Mechanism {
-    companion object {
-        const val SERVO_PORT = 0
-    }
-
     enum class Pattern(val hz: Double) { SOLID(0.0), BLINK(2.0), FAST_BLINK(6.0) }
 
-    private val light = NextRGBIndicator(RobotController.controlHub, SERVO_PORT)
+    private val light = NextRGBIndicator(RobotController.controlHub, ControlHub.INDICATOR_SERVO)
 
     private val seconds get() = System.nanoTime() / 1e9
 

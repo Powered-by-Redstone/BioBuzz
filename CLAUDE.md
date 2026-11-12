@@ -51,7 +51,7 @@ The code must be concise and readable by students. Write the smallest amount of 
 
 - No enterprise patterns: no interfaces with a single implementation, no factories, builders, service locators, dependency injection, abstract base classes, manager hierarchies, event buses, or wrapper layers around NextFTC or FTC SDK hardware classes.
 - An interface is acceptable only when two real implementations exist in the codebase now.
-- Prefer plain classes, a class's companion object for its ports and tunables (Section 13), `data class`es for snapshots, and `enum class` or `sealed class` states handled with a `when` expression for state machines.
+- Prefer plain classes, a class's companion object for its tunables (Section 13), `Ports.kt` for device ports (Section 2), `data class`es for snapshots, and `enum class` or `sealed class` states handled with a `when` expression for state machines.
 - Use NextFTC hardware wrappers and the FTC SDK directly.
 - Keep each mechanism in one file. Do not split small logic into separate classes; a private function inside the owning class is usually enough.
 - No speculative generality: no options, parameters, or extension points the robot does not need now. Configuration exists only for values that are physical, calibrated, or tuned.
@@ -181,7 +181,7 @@ Panels is the project's dashboard. It is plugin-based; relevant plugins include 
 
 The team will provide device names, ports, directions, and other hardware details, usually in the request that needs them.
 
-- Record every provided device name or port as a `const val` in the owning mechanism's companion object, and in `docs/HARDWARE.md`.
+- Record every provided device port as a `const val` in `Ports.kt`, in the object for its hub (`ControlHub` or `ExpansionHub`). Mechanisms pass the hub matching the object the port sits in. A device looked up by Robot Configuration name gets the name as a literal in its mechanism's file. Record each in `docs/HARDWARE.md` too.
 - Names must match the Control Hub Robot Configuration exactly. Never invent a device name, port, motor direction, encoder channel, servo range, or physical dimension.
 - In `docs/HARDWARE.md`, mark each item as Confirmed (provided by the team) or Pending.
 - If a piece needs a value that has not been provided, ask. If the team tells you to proceed anyway, use an explicit unconfigured state that prevents actuation and is reported at INIT, never a plausible-looking default.
@@ -348,6 +348,7 @@ Keep it flat. Create packages only when a requested piece needs them; if the tem
 ```text
 org.firstinspires.ftc.teamcode
 +-- Robot.kt     NextRobot definition
++-- Ports.kt     device ports per hub
 +-- mechanisms   one file per mechanism
 +-- logic        inventory, targeting, shot coordination, launch calibration
 +-- opModes      match TeleOp and Autonomous
@@ -476,7 +477,7 @@ After each shot: prevent a second simultaneous release, close the feeder, update
 
 ## 13. CONFIGURATION AND CALIBRATION
 
-Keep hardware settings and calibration in the owning class's companion object (`const val` for fixed values, `@JvmField var` for Panels-tunable values, with `@Configurable` on the class): device names, motor directions, encoder resolution, odometry pod configuration, turret conversion and limits, servo feedback scaling, servo positions, intake and transfer power, color and distance thresholds, debounce times, tolerances, timeouts, feeder timing, controller gains, Limelight pipeline, camera-to-turret transform, HIVE coordinates, shooting regions, launch tables, vision stability requirements, and flight-time data.
+Keep hardware settings and calibration in the owning class's companion object (`const val` for fixed values, `@JvmField var` for Panels-tunable values, with `@Configurable` on the class); device ports go in `Ports.kt` and configuration names in the mechanism's file (Section 2). This covers motor directions, encoder resolution, odometry pod configuration, turret conversion and limits, servo feedback scaling, servo positions, intake and transfer power, color and distance thresholds, debounce times, tolerances, timeouts, feeder timing, controller gains, Limelight pipeline, camera-to-turret transform, HIVE coordinates, shooting regions, launch tables, vision stability requirements, and flight-time data.
 
 Every value states its unit in its name or a short comment. Angles are radians everywhere in code (as Pedro's are); convert to degrees only for telemetry. Never silently mix inches, centimeters, radians, degrees, ticks, and servo position units. Use NextFTC typed units only where they make the code clearer.
 
