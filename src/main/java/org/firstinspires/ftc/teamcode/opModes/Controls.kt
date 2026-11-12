@@ -1,6 +1,6 @@
 package org.firstinspires.ftc.teamcode.opModes
 
-import com.pedropathing.math.Pose
+import com.pedropathing.follower.Follower
 import dev.nextftc.robot.triggers.CommandGamepad
 import org.firstinspires.ftc.teamcode.Robot
 import org.firstinspires.ftc.teamcode.mechanisms.Shooter
@@ -18,13 +18,15 @@ fun CommandGamepad.bindTurret(robot: Robot) {
     dpadRight.onTrue(robot.turret.step(Turret.STEP_RAD))
 }
 
-fun CommandGamepad.bindAim(robot: Robot, pose: () -> Pose) {
-    circle.toggleOnTrue(robot.turret.lookAt(pose = pose))
+fun CommandGamepad.bindAim(robot: Robot, follower: Follower) {
+    circle.toggleOnTrue(robot.turret.lookAt(follower))
 }
 
 fun CommandGamepad.bindShooter(robot: Robot) {
+    triangle.toggleOnTrue(robot.shooter.run)
     dpadUp.onTrue(robot.shooter.stepRpm(Shooter.RPM_STEP))
     dpadDown.onTrue(robot.shooter.stepRpm(-Shooter.RPM_STEP))
     rightBumper.onTrue(robot.shooter.stepHood(Shooter.HOOD_STEP))
     leftBumper.onTrue(robot.shooter.stepHood(-Shooter.HOOD_STEP))
+    rightTrigger.isOver(0.5).onTrue(robot.shooter.switchBall)
 }

@@ -15,8 +15,12 @@ Every device the code uses. Confirmed = provided by the team; Pending = not yet 
 | Flywheel gearbox / motor model | | Bare-motor 28 CPR and 6000 RPM free speed assumed | Pending | `Shooter.RADIANS_PER_COUNT`, `MAX_RPM` |
 | Hood servo | Expansion Hub, servo port 0 | Position 0..1 | Confirmed | `Shooter.HOOD_PORT` |
 | Hood servo usable range | | Full 0..1 assumed safe | Pending (check for hard stops) | `Shooter.hood` |
+| Rail servo | Expansion Hub, servo port 1 | Port chosen in code (2026-11-11); wire to match | Pending (wire to port 1) | `Shooter.RAIL_PORT` |
+| Rail positions | | POLLEN and NECTAR both 0 until measured | Pending | `Shooter.railPollen`, `railNectar` |
 | Limelight 3A | config name `"limelight"` | Pipeline 0 | Pending | `Limelight` companion |
-| goBILDA RGB Indicator Light (3118-0808-0002) | Control Hub, servo port 0 | Port chosen in code (2026-11-07); wire to match | Pending (wire to port 0) | `Indicator.SERVO_PORT` |
+| goBILDA RGB Indicator Light (3118-0808-0002) | Control Hub, servo port 4 | Moved off broken port 0 (2026-11-11); wire to match | Pending (wire to port 4) | `Indicator.SERVO_PORT` |
+
+Control Hub servo ports 0-3 are broken (reported 2026-11-11); use Control Hub ports 4-5 or Expansion Hub ports.
 
 Port-addressed devices are not checked against the Robot Configuration. If a named device is also configured on Control
 Hub motor port 2, both write to the same motor and NextFTC does not detect the conflict.

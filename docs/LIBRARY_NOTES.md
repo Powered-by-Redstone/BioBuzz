@@ -36,7 +36,10 @@ Not declared: `com.pedropathing.ivy:pedro` (Pedro's Ivy commands).
   track the latest versions and will drift from the pinned one.
 
 - `Mechanism` (`Mechanism.kt`): `periodic()`, `defaultCommand` (default `infinite {}`), helpers `instant`,
-  `infinite`, `coroutine` that require the mechanism. No end/stop hook.
+  `infinite`, `coroutine` that require the mechanism. No end/stop hook. `instant(action)` is
+  `Commands.instant(action).requiring(this)`; both are priority 0, so a mechanism `instant` interrupts that
+  mechanism's running non-default command (conflict `OVERRIDE`). Use `Commands.instant` (no requirements) for
+  commands that only change a setpoint.
 - `NextRobot` (`NextRobot.kt`): `periodic()`, `mechanisms: Set<Mechanism>`.
 - Robot discovery (`RobotScanner.kt`): exactly one public `NextRobot` class, `object` or public no-arg
   constructor. Only runs under the Sloth class loader. The instance is created once at scan time and shared by
@@ -145,3 +148,9 @@ Not declared: `com.pedropathing.ivy:pedro` (Pedro's Ivy commands).
 - `ManualDrive.fieldCentric(forward, strafe, turn, heading[, offset])` rotates (forward, strafe) by
   `-(heading + offset)`; stick up drives toward field +x.
 - `pose()` returns `Pose` with `x()`, `y()` (inches) and `heading()` (radians). Also `velocity()`, `twist()`.
+  `velocity()` is `Velocity(vx, vy, omega)` (public final fields) from the localizer; `PinpointLocalizer.update()`
+  fills it from `getVelX/getVelY` and `getHeadingVelocity(RADIANS)` (revhub-3.0.2-sources). `Pose.withHeading(h)`
+  returns a copy. Frames (pedropathing.com/docs/pathing/reference/velocity, checked 2026-11-11): `Velocity` is
+  world/field frame (same axes as poses), `Twist` is robot frame (x forward, y left); omega is the same in both.
+  The SDK javadoc for Pinpoint `getVelX` only says "X (forward) velocity of the robot"; Pedro treats it as field
+  frame.

@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.mechanisms
 
+import com.pedropathing.math.Pose
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -34,5 +35,15 @@ class TurretAngleTest {
                 val wide = angle(deg.toDouble(), current, -250.0, 250.0)
                 assertTrue("$deg from $current gave $wide", wide in -250.000001..250.000001)
             }
+    }
+
+    @Test fun keepsCurrentOnNonFiniteTarget() = assertEquals(20.0, angle(Double.NaN, 20.0, -60.0, 60.0), 1e-6)
+
+    @Test fun aimsFromOffsetAxis() {
+        fun aimDeg(heading: Double, tx: Double, ty: Double, axisY: Double) =
+            Math.toDegrees(turretAngleTo(Pose(0.0, 0.0, Math.toRadians(heading)), Pose(tx, ty), axisY))
+        assertEquals(45.0, aimDeg(0.0, 10.0, -10.0, 0.0), 1e-6)
+        assertEquals(0.0, aimDeg(0.0, 10.0, -10.0, -10.0), 1e-6)
+        assertEquals(0.0, aimDeg(90.0, 10.0, 20.0, -10.0), 1e-6)
     }
 }
