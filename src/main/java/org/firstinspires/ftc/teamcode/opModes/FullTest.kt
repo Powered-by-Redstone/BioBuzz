@@ -15,7 +15,7 @@ class FullTest(robot: Robot) : NextOpMode(robot, BulkReadHook) {
     private val follower: Follower = Constants.create(hardwareMap)
 
     init {
-        robot.turret.targetRad = 0.0
+        robot.turret.setTarget(0.0)
         robot.shooter.targetRpm = 0.0
         val gamepad = CommandGamepad(gamepad1)
         gamepad.bindCollection(robot)

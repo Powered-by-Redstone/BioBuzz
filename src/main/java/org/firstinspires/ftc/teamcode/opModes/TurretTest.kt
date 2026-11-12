@@ -9,7 +9,7 @@ import org.firstinspires.ftc.teamcode.Robot
 @NextUtility("Turret test")
 class TurretTest(robot: Robot) : NextOpMode(robot, BulkReadHook) {
     init {
-        robot.turret.targetRad = 0.0
+        robot.turret.setTarget(0.0)
         robot.shooter.targetRpm = 0.0
         val gamepad = CommandGamepad(gamepad1)
         gamepad.bindTurret(robot)
