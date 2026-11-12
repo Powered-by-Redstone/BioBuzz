@@ -53,6 +53,12 @@ class Robot : NextRobot {
         Telemetry.addBackend(PanelsTelemetry.ftcTelemetry)
     }
 
+    // The robot starts every match with exactly 4 POLLEN (manual §10.3.4), all in the transfer, gate empty (team, 2026-11-12).
+    fun preload() {
+        balls.clear()
+        repeat(4) { balls.addLast(BallType.POLLEN) }
+    }
+
     fun hive() = when (limelight.hiveState) {
         HiveState.AUDIENCE -> AUDIENCE_HIVE
         HiveState.COUNTER -> COUNTER_HIVE

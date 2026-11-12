@@ -23,6 +23,11 @@ class FullTest(private val robot: Robot) : NextOpMode(robot, BulkReadHook) {
         gamepad.bindShooter(robot)
     }
 
+    // queued shots end with the previous OpMode, so balls already counted (preloads, leftovers) get one each here
+    override fun start() {
+        repeat(robot.balls.size) { robot.shoot(follower).schedule() }
+    }
+
     override fun periodic() {
         follower.manual(
             ManualDrive.fieldCentric(
