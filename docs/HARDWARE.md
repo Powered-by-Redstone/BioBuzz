@@ -20,7 +20,7 @@ Every device the code uses. Confirmed = provided by the team; Pending = not yet 
 | Rail positions | | POLLEN and NECTAR both 0 until measured | Pending | `Shooter.railPollen`, `railNectar` |
 | Limelight 3A | config name `"limelight"` | Pipeline 0 | Pending | `Limelight` |
 | goBILDA RGB Indicator Light (3118-0808-0002) | Control Hub, servo port 4 | Moved off broken port 0 (2026-11-11); wire to match | Pending (wire to port 4) | `ControlHub.INDICATOR_SERVO` |
-| Gate servo | Control Hub, servo port 4 | Position 0..1 | Confirmed | `ControlHub.GATE_SERVO` |
+| Gate servo | Control Hub, servo port 5 | Position 0..1; moved off port 4, which the Indicator uses (2026-11-12); wire to match | Pending (wire to port 5) | `ControlHub.GATE_SERVO` |
 | Gate color/distance sensor | Control Hub, I2C bus 2 | REV Color Sensor V2; addressed by bus, no Robot Configuration name | Confirmed | `ControlHub.GATE_COLOR_SENSOR_I2C_BUS` |
 
 Control Hub servo ports 0-3 are broken (reported 2026-11-11); use Control Hub ports 4-5 or Expansion Hub ports.
