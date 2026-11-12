@@ -6,7 +6,7 @@ import dev.nextftc.robot.opmode.NextUtility
 import dev.nextftc.robot.triggers.CommandGamepad
 import org.firstinspires.ftc.teamcode.Robot
 
-@NextUtility("Gate test")
+@NextUtility("Gate test", "Gate servo: cross open, square close, triangle hold, circle waits for a yellow ball")
 class GateTest(robot: Robot) : NextOpMode(robot, BulkReadHook) {
     init {
         CommandGamepad(gamepad1).bindGate(robot)

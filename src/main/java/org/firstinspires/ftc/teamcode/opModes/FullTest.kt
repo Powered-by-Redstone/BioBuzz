@@ -10,7 +10,7 @@ import dev.nextftc.robot.triggers.CommandGamepad
 import org.firstinspires.ftc.teamcode.Robot
 import org.firstinspires.ftc.teamcode.pedro.Constants
 
-@NextUtility("Full test")
+@NextUtility("Full test", "Match-like: drive, turret aims at the HIVE, square collects and auto-fires, dpad/bumpers RPM and hood")
 class FullTest(private val robot: Robot) : NextOpMode(robot, BulkReadHook) {
     private val follower: Follower = Constants.create(hardwareMap)
 
