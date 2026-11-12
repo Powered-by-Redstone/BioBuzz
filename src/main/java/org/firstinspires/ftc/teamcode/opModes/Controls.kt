@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.opModes
 
 import com.pedropathing.follower.Follower
+import com.pedropathing.ivy.Command
 import dev.nextftc.robot.triggers.CommandGamepad
 import org.firstinspires.ftc.teamcode.Robot
 import org.firstinspires.ftc.teamcode.mechanisms.Shooter
@@ -21,6 +22,12 @@ fun CommandGamepad.bindShooter(robot: Robot) {
     rightBumper.onTrue(robot.shooter.stepHood(Shooter.HOOD_STEP))
     leftBumper.onTrue(robot.shooter.stepHood(-Shooter.HOOD_STEP))
     rightTrigger.isOver(0.5).onTrue(robot.shooter.switchBall)
+}
+
+// TurretTest: cross fires one ball, circle toggles HIVE aiming (null without Pedro, so circle does nothing)
+fun CommandGamepad.bindCalibration(fireOne: Command, aimAtHive: Command?) {
+    cross.onTrue(fireOne)
+    aimAtHive?.let { circle.toggleOnTrue(it) }
 }
 
 fun CommandGamepad.bindGate(robot: Robot) {
