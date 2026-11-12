@@ -23,6 +23,9 @@ class Gate : Mechanism {
         @JvmField var CLOSE_POS = 0.55
         // CALIBRATION REQUIRED: raise until the brightest ball's largest channel reads about 200 of 255.
         @JvmField var COLOR_GAIN = 20.0
+        @JvmField var BALL_MM = 160.0 // a ball is at the gate when closer than this
+        @JvmField var transferS = 0.0 // extra wait after closing (on top of close's 0.3 s) for the ball to enter the transfer
+        @JvmField var colorTimeoutS = 3.0 // collect rejects a held ball whose color matches none of the profiles by then
 
         // CALIBRATION REQUIRED: textbook hues (degrees), not measured on this sensor. Brightness is ignored.
         private val BALL_TOLERANCE = NextColor.hsv(25f, 0.4f, 1f)
@@ -56,6 +59,11 @@ class Gate : Mechanism {
         await(hold)
         await(close)
     }.requiring(this)
+
+    val hasBall get() = colorSensor.isWithinDistance(BALL_MM, DistanceUnit.MM)
+
+    // YELLOW, RED or BLUE once a ball at the gate matches it, else null
+    val color get() = listOf(YELLOW, RED, BLUE).firstOrNull { colorSensor.isColorWithinDistance(it, BALL_MM, DistanceUnit.MM) }
 
     override fun periodic() {
         colorSensor.gain = COLOR_GAIN.toFloat()

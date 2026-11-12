@@ -10,18 +10,22 @@ import dev.nextftc.robot.triggers.CommandGamepad
 import org.firstinspires.ftc.teamcode.Robot
 import org.firstinspires.ftc.teamcode.pedro.Constants
 
-@NextUtility("Full test")
-class FullTest(robot: Robot) : NextOpMode(robot, BulkReadHook) {
+@NextUtility("Full test", "Match-like: drive, turret aims at the HIVE, square collects and auto-fires, dpad/bumpers RPM and hood")
+class FullTest(private val robot: Robot) : NextOpMode(robot, BulkReadHook) {
     private val follower: Follower = Constants.create(hardwareMap)
 
     init {
-        robot.turret.targetRad = 0.0
+        robot.turret.setTarget(0.0)
+        robot.turret.defaultFromStart = robot.turret.lookAt(follower) { robot.hive() }
         robot.shooter.targetRpm = 0.0
         val gamepad = CommandGamepad(gamepad1)
-        gamepad.bindCollection(robot)
-        gamepad.bindTurret(robot)
-        gamepad.bindAim(robot, follower)
+        gamepad.bindCollection(robot, follower)
         gamepad.bindShooter(robot)
+    }
+
+    // queued shots end with the previous OpMode, so balls already counted (preloads, leftovers) get one each here
+    override fun start() {
+        repeat(robot.balls.size) { robot.shoot(follower).schedule() }
     }
 
     override fun periodic() {
@@ -39,6 +43,7 @@ class FullTest(robot: Robot) : NextOpMode(robot, BulkReadHook) {
         Telemetry.log("x (in)", pose.x())
         Telemetry.log("y (in)", pose.y())
         Telemetry.log("heading (deg)", Math.toDegrees(pose.heading()))
+        Telemetry.log("Hive distance (in)", robot.hiveDistance(follower))
     }
 
     override fun end() {

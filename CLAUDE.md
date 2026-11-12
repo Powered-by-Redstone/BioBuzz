@@ -414,7 +414,7 @@ Separate data for POLLEN and NECTAR: release-geometry setting and RPM as functio
 
 Never invent calibration data. Example values may appear only in documentation and must be labeled as examples.
 
-Reject unsorted or duplicate distances, refuse to extrapolate beyond the measured range, clamp outputs to servo and RPM bounds, and treat an empty table as unconfigured. Keep the data in the owning class's companion object, separate from the control functions. The release-geometry value is not a turret pitch.
+Reject unsorted or duplicate distances, outside the measured range use the nearest end entry rather than extrapolating (team decision), clamp outputs to servo and RPM bounds, and treat an empty table as unconfigured. Keep the data in the owning class's companion object, separate from the control functions. The release-geometry value is not a turret pitch.
 
 ---
 

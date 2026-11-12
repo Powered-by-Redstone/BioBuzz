@@ -41,6 +41,11 @@ Not declared: `com.pedropathing.ivy:pedro` (Pedro's Ivy commands).
   mechanism's running non-default command (conflict `OVERRIDE`). Use `Commands.instant` (no requirements) for
   commands that only change a setpoint.
 - `NextRobot` (`NextRobot.kt`): `periodic()`, `mechanisms: Set<Mechanism>`.
+- Coroutine commands (`coroutine/*.kt`): `command { }` and `Mechanism.coroutine { }` return a
+  `CoroutineCommandBuilder`; each `start()` builds a fresh coroutine, so one instance can be rescheduled. Body helpers:
+  `wait(s)`, `waitUntil`, `await(cmd)` (runs inline, its requirements are not checked: put them on the outer command),
+  `awaitAny` (ends the others `INTERRUPTED`), `fork`. Interrupting resumes the body with a `CancellationException`, so
+  `try/finally` runs; `return@command` ends the body early.
 - Robot discovery (`RobotScanner.kt`): exactly one public `NextRobot` class, `object` or public no-arg
   constructor. Only runs under the Sloth class loader. The instance is created once at scan time and shared by
   every OpMode until the next Sloth reload.
@@ -66,7 +71,8 @@ Not declared: `com.pedropathing.ivy:pedro` (Pedro's Ivy commands).
   5. `NextMotor.motorEventLoop.poll()`
   6. `Telemetry.update()`
 - INIT loop: only `disabledPeriodic()` and `Telemetry.update()`. No robot/mechanism periodic, no scheduler.
-  Default commands are scheduled in `beforeStart`.
+  Default commands are scheduled in `beforeStart`, which reads each mechanism's `defaultCommand` property anew every
+  OpMode (`OpModeHook.kt` `RobotHook`; the only read in robot-0.3.0-sources).
 - `Telemetry` (`Telemetry.kt`): `log(key, String)`, `log(key, Any?)`, `log(line)`. Default backend is the Driver
   Station only; `addBackend(sdkTelemetry)` adds more (a set, so duplicates are ignored). `Robot` adds
   `PanelsTelemetry.ftcTelemetry` (Panels does not mirror Driver Station telemetry on its own). Panels web UI:
@@ -136,6 +142,10 @@ Not declared: `com.pedropathing.ivy:pedro` (Pedro's Ivy commands).
   blocked (`CANCEL` drops it, `QUEUE` queues it). Equal priority uses the conflict behavior (`OVERRIDE` interrupts
   the holder, `QUEUE` queues, `CANCEL` drops). Lower priority holders are interrupted (`END` ends them, `SUSPEND`
   parks them).
+- Queue order (javap -c `Scheduler.execute`): `queuedCommands` is a deque walked in insertion order, and each start
+  takes its requirements before the next is checked, so commands with the same requirements start FIFO.
+  `Command.schedule()` = `Scheduler.schedule(this)`; scheduling from inside a running command is safe (execute walks
+  a copy of the running list).
 - `Scheduler.execute`: runs commands, then starts queued commands whose requirements are free, then resumes
   suspended ones in the order they were suspended. Resume ignores priority, so a mechanism's default command
   (suspended first) comes back before a lower-priority command that is still wanted.
@@ -155,7 +165,20 @@ Not declared: `com.pedropathing.ivy:pedro` (Pedro's Ivy commands).
   (`MyField.getValue/setValue`), so pointing the field at another instance after the scan works. Used to expose
   `NextMotor.positionConstants` (`Turret.gains`).
 
+## Game manual (BIOBUZZ Competition Manual TU06, section 9, read 2026-11-12)
+
+- FIELD 144 in square, 36 tiles of 24 in. Red ALLIANCE AREA on the left as seen from the audience; layout symmetric
+  under a 180° turn. HIVE geometry and AprilTag IDs: see `docs/MECHANISMS.md` HIVE.
+- G407 (section 11, TU08): a ROBOT may not CONTROL more than 4 SCORING ELEMENTS at once; MOMENTARY control of 5
+  that is reversed quickly is not STRATEGIC, REPEATED control of 5 or more is, even with a "keep 4, discard the
+  rest" mechanism. Elements LAUNCHED and no longer touching the ROBOT are not CONTROLLED. `Robot.MAX_BALLS`.
+- G408: a ROBOT may not CONTROL opponent NECTAR. REPEATED instances are likely STRATEGIC (YELLOW CARD) even with a
+  mechanism that discards it automatically; so `collect`'s reject keeps it legal only if it is rare.
+
 ## Pedro 3.0.2 (core-3.0.2.jar via javap, revhub-3.0.2-sources.jar)
+- Field frame (pedropathing.com/docs/pathing/reference/coordinates, 2026-11-12): origin bottom-left corner, +x right,
+  +y up, heading radians counter-clockwise from +x; FTC SDK pose to Pedro: (y + 72, 72 - x, heading - π/2). The docs
+  don't say which wall is the audience. No `Pose.mirror()` in core-3.0.2.
 
 - `Follower(Localizer, Drivetrain, Algorithm)`. `update()` runs `localizer.update()` then drives according to
   `mode()` (`FOLLOW`, `HOLD`, `MANUAL`, `IDLE`). Call exactly once per loop.
@@ -167,7 +190,9 @@ Not declared: `com.pedropathing.ivy:pedro` (Pedro's Ivy commands).
   Gamepad mapping: `forward = -left_stick_y`, `strafe = -left_stick_x`, `turn = -right_stick_x`.
 - `ManualDrive.fieldCentric(forward, strafe, turn, heading[, offset])` rotates (forward, strafe) by
   `-(heading + offset)`; stick up drives toward field +x.
-- `pose()` returns `Pose` with `x()`, `y()` (inches) and `heading()` (radians). Also `velocity()`, `twist()`.
+- `setPose(Pose)` sets the current pose; there is no `setStartingPose` in core-3.0.2 (javap of
+  `com.pedropathing.follower.Follower`, 2026-11-12).
+- `pose()` returns `Pose` with `x()`, `y()` (inches) and `heading()` (radians). `Pose.distance(other)` (inches). Also `velocity()`, `twist()`.
   `velocity()` is `Velocity(vx, vy, omega)` (public final fields) from the localizer; `PinpointLocalizer.update()`
   fills it from `getVelX/getVelY` and `getHeadingVelocity(RADIANS)` (revhub-3.0.2-sources). `Pose.withHeading(h)`
   returns a copy. Frames (pedropathing.com/docs/pathing/reference/velocity, checked 2026-11-11): `Velocity` is

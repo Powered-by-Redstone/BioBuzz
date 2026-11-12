@@ -11,11 +11,16 @@ import org.firstinspires.ftc.teamcode.ControlHub
 class Transfer : Mechanism {
     companion object {
         @JvmField var power = 1.0
+        @JvmField var feedPower = 0.5 // CALIBRATION REQUIRED: slow enough that the next ball doesn't follow into the flywheel
     }
 
     private val motor = NextMotor(RobotController.controlHub, ControlHub.TRANSFER_MOTOR)
 
     val run = infinite { motor.throttle = power.coerceIn(-1.0..1.0) }.setEnd { motor.throttle = 0.0 }
+
+    val feed = infinite { motor.throttle = feedPower.coerceIn(-1.0..1.0) }.setEnd { motor.throttle = 0.0 }
+
+    override val defaultCommand = run
 
     override fun periodic() {
         Telemetry.log("Transfer throttle", motor.throttle)
