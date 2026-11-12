@@ -6,9 +6,8 @@ import org.firstinspires.ftc.teamcode.Robot
 import org.firstinspires.ftc.teamcode.mechanisms.Shooter
 import org.firstinspires.ftc.teamcode.mechanisms.Turret
 
-fun CommandGamepad.bindCollection(robot: Robot) {
-    square.toggleOnTrue(robot.intake.run)
-    cross.toggleOnTrue(robot.transfer.run)
+fun CommandGamepad.bindCollection(robot: Robot, follower: Follower) {
+    square.toggleOnTrue(robot.collect(follower))
 }
 
 fun CommandGamepad.bindTurret(robot: Robot) {
@@ -16,12 +15,7 @@ fun CommandGamepad.bindTurret(robot: Robot) {
     dpadRight.onTrue(robot.turret.step(Turret.STEP_RAD))
 }
 
-fun CommandGamepad.bindAim(robot: Robot, follower: Follower) {
-    circle.toggleOnTrue(robot.turret.lookAt(follower))
-}
-
 fun CommandGamepad.bindShooter(robot: Robot) {
-    triangle.toggleOnTrue(robot.shooter.run)
     dpadUp.onTrue(robot.shooter.stepRpm(Shooter.RPM_STEP))
     dpadDown.onTrue(robot.shooter.stepRpm(-Shooter.RPM_STEP))
     rightBumper.onTrue(robot.shooter.stepHood(Shooter.HOOD_STEP))

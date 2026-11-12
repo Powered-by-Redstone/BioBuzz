@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.mechanisms
 
 import com.bylazar.configurables.annotations.Configurable
 import com.pedropathing.follower.Follower
+import com.pedropathing.ivy.Command
 import com.pedropathing.math.Pose
 import dev.nextftc.hardware.RobotController
 import dev.nextftc.hardware.actuators.MotorPositionConstants
@@ -27,8 +28,6 @@ class Turret : Mechanism {
         @JvmField var STEP_RAD = PI / 18 // 10°
         @JvmField var AXIS_Y_IN = Double.NaN // turret axis, robot frame (+y left), negative; unmeasured, lookAt holds until set
         @JvmField var gains = MotorPositionConstants()
-        @JvmField var lookX = 0.0
-        @JvmField var lookY = 0.0
         @JvmField var leadS = 0.0 // aim from where the chassis will be this far ahead; 0 = no lead
         @JvmField var alignedRad = PI / 90 // 2°: shots wait until the turret is this close to its target
         @JvmField var seekRangeRad = PI / 6 // 30°: see chooseTurretAngle
@@ -55,11 +54,15 @@ class Turret : Mechanism {
 
     fun step(rad: Double) = instant { setTarget(targetRad + rad) }
 
-    override val defaultCommand = fixedAngle
+    // An OpMode sets this during INIT to make it the default from START (FullTest: aim at the HIVE). START takes it once,
+    // so an OpMode that doesn't set it gets fixedAngle, not a command built on an earlier OpMode's follower.
+    var defaultFromStart: Command? = null
 
-    // target is read every loop; the default reads Panels lookX/lookY, so edits apply live. While not firing, the
-    // turret unwinds early to keep travel for the next shot.
-    fun lookAt(follower: Follower, firing: Boolean = false, target: () -> Pose = { Pose(lookX, lookY) }) = infinite {
+    override val defaultCommand: Command
+        get() = (defaultFromStart ?: fixedAngle).also { defaultFromStart = null }
+
+    // target is read every loop. While not firing, the turret unwinds early to keep travel for the next shot.
+    fun lookAt(follower: Follower, firing: Boolean = false, target: () -> Pose) = infinite {
         val p = follower.pose()
         val v = follower.velocity() // field frame: in/s, rad/s
         val ahead = Pose(p.x() + v.vx * leadS, p.y() + v.vy * leadS, p.heading() + v.omega * leadS)

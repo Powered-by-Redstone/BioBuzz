@@ -11,16 +11,15 @@ import org.firstinspires.ftc.teamcode.Robot
 import org.firstinspires.ftc.teamcode.pedro.Constants
 
 @NextUtility("Full test")
-class FullTest(robot: Robot) : NextOpMode(robot, BulkReadHook) {
+class FullTest(private val robot: Robot) : NextOpMode(robot, BulkReadHook) {
     private val follower: Follower = Constants.create(hardwareMap)
 
     init {
         robot.turret.setTarget(0.0)
+        robot.turret.defaultFromStart = robot.turret.lookAt(follower) { robot.hive() }
         robot.shooter.targetRpm = 0.0
         val gamepad = CommandGamepad(gamepad1)
-        gamepad.bindCollection(robot)
-        gamepad.bindTurret(robot)
-        gamepad.bindAim(robot, follower)
+        gamepad.bindCollection(robot, follower)
         gamepad.bindShooter(robot)
     }
 
@@ -39,6 +38,7 @@ class FullTest(robot: Robot) : NextOpMode(robot, BulkReadHook) {
         Telemetry.log("x (in)", pose.x())
         Telemetry.log("y (in)", pose.y())
         Telemetry.log("heading (deg)", Math.toDegrees(pose.heading()))
+        Telemetry.log("Hive distance (in)", robot.hiveDistance(follower))
     }
 
     override fun end() {
