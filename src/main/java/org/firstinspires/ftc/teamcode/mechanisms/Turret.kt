@@ -14,11 +14,11 @@ import kotlin.math.PI
 import kotlin.math.atan2
 import kotlin.math.cos
 import kotlin.math.sin
+import org.firstinspires.ftc.teamcode.ExpansionHub
 
 @Configurable
 class Turret : Mechanism {
     companion object {
-        const val MOTOR_PORT = 2
         const val RADIANS_PER_COUNT = 0.0
         @JvmField var MIN_RAD = -PI / 3 // -60°
         @JvmField var MAX_RAD = PI / 3 // 60°
@@ -35,7 +35,7 @@ class Turret : Mechanism {
             field = chooseTurretAngle(rad, field, MIN_RAD, MAX_RAD)
         }
 
-    private val motor = NextMotor(RobotController.expansionHub, MOTOR_PORT, RADIANS_PER_COUNT.radians)
+    private val motor = NextMotor(RobotController.expansionHub, ExpansionHub.TURRET_MOTOR, RADIANS_PER_COUNT.radians)
 
     init {
         gains = motor.positionConstants
