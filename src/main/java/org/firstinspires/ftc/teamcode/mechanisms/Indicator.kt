@@ -12,7 +12,7 @@ import kotlin.math.sin
 @Configurable
 class Indicator : Mechanism {
     companion object {
-        const val SERVO_PORT = 0
+        const val SERVO_PORT = 4
     }
 
     enum class Pattern(val hz: Double) { SOLID(0.0), BLINK(2.0), FAST_BLINK(6.0) }
