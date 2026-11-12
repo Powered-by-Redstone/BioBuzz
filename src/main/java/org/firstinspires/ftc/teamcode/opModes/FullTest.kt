@@ -20,7 +20,7 @@ class FullTest(robot: Robot) : NextOpMode(robot, BulkReadHook) {
         val gamepad = CommandGamepad(gamepad1)
         gamepad.bindCollection(robot)
         gamepad.bindTurret(robot)
-        gamepad.bindAim(robot) { follower.pose() }
+        gamepad.bindAim(robot, follower)
         gamepad.bindShooter(robot)
     }
 
