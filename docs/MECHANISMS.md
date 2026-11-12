@@ -201,5 +201,7 @@ Not built yet / known gaps
   `Robot.balls` by hand.
 - Turret PID can overshoot past the soft limits; nothing stops the motor outside them (accepted: the PID is tuned
   on a narrow range).
-- Indicator shows no robot states yet (for example ready to fire).
+- Limelight aiming: the turret aims from the Pedro pose alone; the Limelight only reports which HIVE state it sees.
+  CLAUDE.md §10: refine the aim with fresh tag detections (`tx`) once the camera-to-turret geometry and sign are
+  calibrated, without fighting the pose-based aim.
 - No `Drivetrain` mechanism: the follower lives in the OpMode, so nothing stops a second writer to the drive motors.
