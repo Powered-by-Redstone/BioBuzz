@@ -11,9 +11,10 @@ import org.firstinspires.ftc.teamcode.ExpansionHub
 @Configurable
 class Guard : Mechanism {
     companion object {
-        const val CLOSED = 1.0
-        const val OPEN = 0.0
-        // CALIBRATION REQUIRED: a shot closes the guard and retries if the flywheel shows no dip this long after opening
+        const val CLOSED = 0.55
+        const val OPEN = 0.78
+        // CALIBRATION REQUIRED: a shot closes the guard and retries if the flywheel shows no dip this long after
+        // opening
         @JvmField var maxOpenS = 0.5
     }
 

@@ -561,11 +561,12 @@ Match OpModes show a concise subset; test OpModes show detail and use Panels gra
 
 ## 20. PROJECT DOCUMENTATION
 
-Keep these three files current, updating only the parts each change affects. Keep them short.
+Keep these four files current, updating only the parts each change affects. Keep them short.
 
 - `docs/LIBRARY_NOTES.md`: pinned versions, verified APIs, loop order, documentation discrepancies, relevant rule facts.
 - `docs/HARDWARE.md`: every device name, port, sensor input, and encoder channel, marked Confirmed or Pending.
 - `docs/MECHANISMS.md`: only the important mechanical facts the code depends on, one short entry per mechanism: what it physically does, which mechanism class owns each actuator, measured limits and geometry (turret reference procedure and cable limits, turret axis and camera offsets, indexer angles, feeder timing), values still unmeasured, and known mechanical limitations such as possible double feeding. No software architecture descriptions.
+- `docs/TEAM_GUIDE.md`: what the team needs to test, debug and tune without help: safety rules, tunables with current values, bring-up steps per OpMode, debugging table, checkbox checklist. Terse fragments; link external docs (Pedro, Limelight, Panels) instead of explaining them. Update it whenever a change touches ports, tunables, OpModes, controls or procedures, including teammates' changes.
 
 ---
 

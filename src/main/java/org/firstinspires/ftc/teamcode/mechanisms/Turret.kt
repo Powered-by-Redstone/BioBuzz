@@ -26,7 +26,8 @@ class Turret : Mechanism {
         @JvmField var MIN_RAD = -PI / 3 // -60°
         @JvmField var MAX_RAD = PI / 3 // 60°
         @JvmField var STEP_RAD = PI / 18 // 10°
-        @JvmField var AXIS_Y_IN = Double.NaN // turret axis, robot frame (+y left), negative; unmeasured, lookAt holds until set
+        // turret axis, robot frame (+y left), negative; unmeasured, lookAt holds until set
+        @JvmField var AXIS_Y_IN = Double.NaN
         @JvmField var gains = MotorPositionConstants()
         @JvmField var leadS = 0.0 // aim from where the chassis will be this far ahead; 0 = no lead
         @JvmField var alignedRad = PI / 90 // 2°: shots wait until the turret is this close to its target
@@ -54,8 +55,8 @@ class Turret : Mechanism {
 
     fun step(rad: Double) = instant { setTarget(targetRad + rad) }
 
-    // An OpMode sets this during INIT to make it the default from START (FullTest: aim at the HIVE). START takes it once,
-    // so an OpMode that doesn't set it gets fixedAngle, not a command built on an earlier OpMode's follower.
+    // An OpMode sets this during INIT to make it the default from START (FullTest: aim at the HIVE). START takes it
+    // once, so an OpMode that doesn't set it gets fixedAngle, not a command built on an earlier OpMode's follower.
     var defaultFromStart: Command? = null
 
     override val defaultCommand: Command

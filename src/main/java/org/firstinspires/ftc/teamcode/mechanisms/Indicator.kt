@@ -8,7 +8,7 @@ import dev.nextftc.robot.Mechanism
 import dev.nextftc.robot.Telemetry
 import kotlin.math.PI
 import kotlin.math.sin
-import org.firstinspires.ftc.teamcode.ControlHub
+import org.firstinspires.ftc.teamcode.ExpansionHub
 
 @Configurable
 class Indicator(private val state: () -> State) : Mechanism {
@@ -25,7 +25,7 @@ class Indicator(private val state: () -> State) : Mechanism {
         IDLE(Color.OFF, Pattern.SOLID),
     }
 
-    private val light = NextRGBIndicator(RobotController.controlHub, ControlHub.INDICATOR_SERVO)
+    private val light = NextRGBIndicator(RobotController.expansionHub, ExpansionHub.INDICATOR_SERVO)
 
     private val seconds get() = System.nanoTime() / 1e9
 

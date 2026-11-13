@@ -33,8 +33,8 @@ class Limelight(private val alliance: () -> Alliance) : Mechanism {
         // the SDK getter is nullable, unlike NextLimelight.latestResult
         val result = limelight.camera.latestResult
         val tags = if (result != null && result.isValid) result.fiducialResults else emptyList()
-        // the field is symmetric under a 180° turn: blue's far CELL (B) is where red's audience CELL (A) is, tags in the
-        // same order, so states are named as red sees them
+        // the field is symmetric under a 180° turn: blue's far CELL (B) is where red's audience CELL (A) is, tags in
+        // the same order, so states are named as red sees them
         val (aTags, bTags) = if (alliance() == Alliance.RED) RED_A_TAGS to RED_B_TAGS else BLUE_B_TAGS to BLUE_A_TAGS
         val a = tags.filter { it.fiducialId in aTags }.sortedBy { it.targetXPixels }
         val b = tags.filter { it.fiducialId in bTags }.sortedBy { it.targetXPixels }
