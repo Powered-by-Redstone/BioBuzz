@@ -112,7 +112,7 @@ class Robot : NextRobot {
             awaitAny(
                 aim,
                 transfer.run,
-                Commands.waitUntil { shooter.aimFor(hiveDistance(follower)) && shooter.atSpeed && turret.aligned },
+                Commands.waitUntil { shooter.aimFor(hiveDistance(follower)) && shooter.ready && turret.aligned },
             )
             val dip = Commands.waitUntil { shooter.dipped }
         } while (awaitAny(aim, transfer.feed, guard.open, dip, Commands.waitMs(Guard.maxOpenS * 1000)) != dip)

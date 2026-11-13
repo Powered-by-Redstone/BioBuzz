@@ -11,6 +11,10 @@
 - **Every NextFTC OpMode runs every mechanism** (shared robot, section 3). From START: transfer full power, guard
   closed, shooter writes hood + rail, turret holds last target (carried over from previous OpMode). Only *Motor test*
   and *Servo test* run just one device.
+- **Hood low at code start.** Hood angle is only tracked while the code runs; at start (power-on, app restart, Sloth
+  deploy) a reading that could mean two hood angles is taken as the lower one. Hood near its low end then. Any
+  `Hood fault` latches (hood stops, no shots) until the code restarts.
+- **Hood is a continuous servo.** Never drive it with *Servo test*: anything but 0.5 spins it into its hard stop.
 - **Control Hub servo ports 0–3 broken.** Use Control Hub servo 4–5 or Expansion Hub servos.
 - **No port-addressed devices in Robot Configuration.** Intake, transfer, turret, flywheel, all servos, indicator,
   color sensor: addressed by hub + port in `Ports.kt`, not name. Also configured on same port: both drive one device,
@@ -27,8 +31,9 @@ Configurables: live-edit values marked "Panels" in section 4. `const val` / `val
 
 ### Unit tests
 
-Tested math: turret angle choice (`TurretAngleTest`), launch-table interpolation (`ShotTableTest`), in
-`src/test/java`. Run after changing `chooseTurretAngle`, `turretAngleTo` or `interpolate`. No robot needed:
+Tested math: turret angle choice (`TurretAngleTest`), launch-table interpolation (`ShotTableTest`), hood tracking
+and runaway stop (`HoodTest`), in `src/test/java`. Run after changing `chooseTurretAngle`, `turretAngleTo`,
+`interpolate`, `hoodTrack`, `hoodCheck`, `unwrapDeg` or `hoodStartDeg`. No robot needed:
 
 ```bash
 ./gradlew testDebugUnitTest
@@ -101,6 +106,15 @@ negative power. Turret, flywheel: code change, `direction = REVERSE` on that `Ne
 | `Shooter.rpmTolerance` | Panels | 100 | RPM; shots wait until this close | 5.6 |
 | `Shooter.shotDipRpm` | Panels | 300 | RPM drop = ball fired | 5.7 |
 | `Shooter.railPollen` / `railNectar` | Panels | 0 / 0 | rail servo 0..1 per ball type | 5.2 |
+| `Shooter.HOOD_MIN_DEG` / `HOOD_MAX_DEG` | code | NaN / NaN | unwrapped hood servo degrees (e.g. 40 / 420); NaN = hood still, no shots | 5.2a |
+| `Shooter.HOOD_MARGIN_DEG` | code | 10 | ° past min/max = fault; keep min/max this far inside hard stops | 5.2a |
+| `Shooter.HOOD_MAX_STEP_DEG` | code | 90 | ° per loop above which feedback counts as lost | – |
+| `Shooter.HOOD_STALL_S` | code | 0.5 | s powered without moving 1° the right way = fault | 5.2a |
+| `Shooter.hoodReversed` | Panels | false | flip so positive power raises `Hood deg` | 5.2a |
+| `Shooter.hoodGains` | Panels | all 0 | kP/kI/kD, servo power per ° of error; 0 = hood never moves | 5.2a |
+| `Shooter.hoodKs` | Panels | 0 | least power that moves the hood, added toward target | 5.2a |
+| `Shooter.HOOD_WRONG_WAY_DEG` | code | 10 | ° moved against power = fault; must exceed overshoot coast | 5.2a |
+| `Shooter.hoodToleranceDeg` | Panels | 3 | °; shots wait until this close | 5.2a |
 | `Shooter.POLLEN_SHOTS` / `NECTAR_SHOTS` | code | empty | launch tables; empty = never fires | 5.9 |
 | `Limelight.PIPELINE` | code | 0 | pipeline index | 5.8 |
 | `Robot.AUDIENCE_HIVE` / `COUNTER_HIVE` | code | (59.25, 56.2) / (59.25, 87.8) | Pedro inches, aim point per HIVE state | 5.8 |
@@ -148,10 +162,24 @@ or unhook first. Limp at STOP.
 |---|---|
 | Gate | `OPEN_POS` (ball passes in), `HOLD_POS` (ball held still at sensor), `CLOSE_POS` (ball pushed into transfer) |
 | Guard | `CLOSED` (0.55) holds balls, `OPEN` (0.78) lets one through? Else change `Guard.CLOSED` / `OPEN` (code) |
-| Hood | range without hard stops. Code clamps 0..1 only; narrower safe range: change clamp in `Shooter.hood` (code) |
 | Rail | `railPollen`, `railNectar` (rail spacing per ball) |
 
-Indicator: not a positional servo, skip.
+Indicator: not a positional servo, skip. Hood: continuous servo, never here (5.2a).
+
+### 5.2a Hood — *Turret test*
+
+Axon in continuous mode, feedback wire on Control Hub analog 0. `Hood deg` = unwrapped feedback angle; range spans
+more than one turn. Bumpers = target ±10°.
+
+1. Hood at low stop, then start code (deploy / restart app). START *Turret test*. Range NaN: hood unpowered.
+2. Turn hood by hand, slowly (fast = `Hood fault` true), to high stop, back to low. Read `Hood deg` at both stops;
+   `Hood raw deg` = 0..360 sensor value.
+3. `HOOD_MIN_DEG` / `HOOD_MAX_DEG` in `Shooter.kt`: each ≥ `HOOD_MARGIN_DEG` (10°) inside its stop. Deploy, hood low.
+4. Small `hoodGains.kP`, bumper up. `Hood deg` falls or `Hood fault` true: flip `hoodReversed`, restart code.
+5. `hoodKs`: raise until the hood just creeps toward target. Raise `kP` until fast, little overshoot; `kD` damps it.
+   Stops short: raise `hoodKs` or `hoodToleranceDeg`. Faults on overshoot: less `kP`, or raise `HOOD_WRONG_WAY_DEG`.
+   Commit (`hoodGains = PIDCoefficients(kP, kI, kD)`, `hoodKs`).
+6. Check: target change to each end stops ≥ margin before the stop. Unplug feedback while moving: must fault.
 
 ### 5.3 Turret gearing, limits (code)
 
@@ -181,7 +209,7 @@ for yellow ball within `BALL_MM`, hold, close. Telemetry: `Gate position`, `Gate
 
 ### 5.5 Turret PID — *Turret test*
 
-Controls: dpad left/right = target ∓10°; dpad up/down = RPM ±50; bumpers = hood ±0.05; right trigger = POLLEN/NECTAR;
+Controls: dpad left/right = target ∓10°; dpad up/down = RPM ±50; bumpers = hood ±10°; right trigger = POLLEN/NECTAR;
 circle = toggle HIVE aiming (needs Pedro); cross = fire one ball. Target 0° at INIT. Works without Pedro.
 
 1. Needs: 5.3 step 1 done, turret at reference at power-up.
@@ -253,9 +281,9 @@ Aim point from `Hive state`. NA: turret holds still, distance NaN.
 
 1. Start pose into Panels during INIT, robot there, START.
 2. Push robot to shooting spot. Circle: turret aims at HIVE. `Hive distance (in)` = distance.
-3. Right trigger: ball type (`Rail ball`). RPM (dpad up/down), hood (bumpers), cross fires. Repeat until scores
+3. Right trigger: ball type (`Rail ball`). RPM (dpad up/down), hood (bumpers, needs 5.2a), cross fires. Repeat until scores
    reliably.
-4. Row: `Shot(Hive distance (in), Shooter target rpm, Hood position)` into `POLLEN_SHOTS` or `NECTAR_SHOTS` in
+4. Row: `Shot(Hive distance (in), Shooter target rpm, Hood target deg)` into `POLLEN_SHOTS` or `NECTAR_SHOTS` in
    `Shooter.kt`.
 5. Whole shooting area, ~every 12 in. Distances strictly increasing; unsorted table blocks firing. Between rows:
    interpolated. Beyond ends: end row.
@@ -291,7 +319,8 @@ mechanism, Limelight aim correction, manual set/clear of ball count. See "Final 
 
 Telemetry keys: `Alliance`, `Balls` (count + order, first = next shot), `Robot state`, `Hive state`,
 `Gate position`, `Gate sensor output`, `Intake throttle`, `Transfer throttle`, `Guard position`, `Turret deg`,
-`Turret target deg`, `Shooter rpm`, `Shooter target rpm`, `Hood position`, `Rail ball`. Test OpModes add
+`Turret target deg`, `Shooter rpm`, `Shooter target rpm`, `Hood deg`, `Hood target deg`, `Hood raw deg`, `Hood fault`,
+`Rail ball`. Test OpModes add
 `Ready to fire`, `Hive distance (in)`, pose `x (in)`, `y (in)`, `heading (deg)`.
 
 | Symptom | Check |
@@ -302,8 +331,9 @@ Telemetry keys: `Alliance`, `Balls` (count + order, first = next shot), `Robot s
 | Turret angle drifts off | moved by hand while powered, or not at reference at power-up. Power-cycle at reference |
 | Turret not aiming at HIVE | `AXIS_Y_IN` NaN (telemetry says), `Hive state` NA, no start pose (Turret test), no Pedro |
 | Turret aims at wrong CELL | swap `AUDIENCE_HIVE` / `COUNTER_HIVE`; or Pedro frame assumption wrong |
-| Never fires (`Balls` not empty) | in order: launch table empty/unsorted; `Hive state` NA (orange blink); `AXIS_Y_IN` NaN (`Hive distance` NaN); RPM never within `rpmTolerance` (flywheel gains); turret never within `alignedRad` (turret gains) |
+| Never fires (`Balls` not empty) | in order: launch table empty/unsorted; `Hive state` NA (orange blink); `AXIS_Y_IN` NaN (`Hive distance` NaN); RPM never within `rpmTolerance` (flywheel gains); `Hood fault` true, hood range NaN, or hood never within `hoodToleranceDeg`; turret never within `alignedRad` (turret gains) |
 | Guard opens/closes repeatedly, `Balls` not shrinking | `shotDipRpm` too high, or `maxOpenS` too short |
+| `Hood fault` true | one of: `hoodReversed` wrong, feedback wire loose, `hoodKs` too small to move it, overshoot coast > `HOOD_WRONG_WAY_DEG`, jam, hood moved fast by hand, hood not low at code start, limits wrong. Fix, restart code with hood low |
 | Two balls per shot | lower `feedPower`; else mechanical (guard closes too slow) |
 | Every ball rejected / unknown | `COLOR_GAIN`, hue profiles, `BALL_MM`; read `Gate sensor output` |
 | Square does nothing, Full test | already 4 counted (green solid); preloads counted at autonomous INIT |
@@ -346,7 +376,10 @@ Done on robot + value in code: tick (`- [x]`) in a commit. GitHub shows checkbox
 
 - [ ] Gate `OPEN_POS`, `HOLD_POS`, `CLOSE_POS`
 - [ ] Guard `CLOSED` / `OPEN`
-- [ ] Hood safe range (clamp changed if narrower than 0..1)
+- [ ] Hood feedback wire on Control Hub analog 0
+- [ ] `HOOD_MIN_DEG` / `HOOD_MAX_DEG` measured, ≥ 10° inside hard stops
+- [ ] `hoodReversed`, `hoodGains`, `hoodKs`, `hoodToleranceDeg`
+- [ ] Hood faults on unplugged feedback while moving
 - [ ] `railPollen`, `railNectar`
 
 ### Collecting (5.4)
