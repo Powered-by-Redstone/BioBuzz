@@ -5,9 +5,9 @@ package org.firstinspires.ftc.teamcode
 object ControlHub {
     const val INTAKE_MOTOR = 2
     const val SHOOTER_MOTOR = 3
-    const val GATE_COLOR_SENSOR_I2C_BUS = 2
     const val HOOD_SERVO = 4
     const val RAIL_SERVO = 5
+    const val GATE_COLOR_SENSOR_I2C_BUS = 2
 }
 
 object ExpansionHub {

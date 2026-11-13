@@ -13,7 +13,6 @@ import dev.nextftc.units.radians
 import dev.nextftc.units.rpm
 import kotlin.math.PI
 import kotlin.math.abs
-import org.firstinspires.ftc.teamcode.ExpansionHub
 import org.firstinspires.ftc.teamcode.ControlHub
 
 enum class BallType { POLLEN, NECTAR }
@@ -77,7 +76,8 @@ class Shooter : Mechanism {
 
     private val rpm get() = motor.encoderVelocity.into(RotationsPerMinute)
 
-    // Sets RPM and hood for `ball` at distanceIn; false (setpoints unchanged) for an unknown distance or unusable table.
+    // Sets RPM and hood for `ball` at distanceIn; false (setpoints unchanged) for an unknown distance or unusable
+    // table.
     fun aimFor(distanceIn: Double): Boolean {
         val shot = interpolate(if (ball == BallType.POLLEN) POLLEN_SHOTS else NECTAR_SHOTS, distanceIn) ?: return false
         targetRpm = shot.rpm

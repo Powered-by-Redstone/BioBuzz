@@ -7,12 +7,13 @@ import org.junit.Test
 
 class TurretAngleTest {
     // cases are written in degrees for readability; chooseTurretAngle works in radians
-    private fun angle(deg: Double, current: Double, min: Double, max: Double, seekRange: Double? = null) = Math.toDegrees(
-        chooseTurretAngle(
-            Math.toRadians(deg), Math.toRadians(current), Math.toRadians(min), Math.toRadians(max),
-            seekRange?.let { Math.toRadians(it) },
-        ),
-    )
+    private fun angle(deg: Double, current: Double, min: Double, max: Double, seekRange: Double? = null) =
+        Math.toDegrees(
+            chooseTurretAngle(
+                Math.toRadians(deg), Math.toRadians(current), Math.toRadians(min), Math.toRadians(max),
+                seekRange?.let { Math.toRadians(it) },
+            ),
+        )
 
     @Test fun keepsReachableAngle() = assertEquals(30.0, angle(30.0, 0.0, -60.0, 60.0), 1e-6)
 

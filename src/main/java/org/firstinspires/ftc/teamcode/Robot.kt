@@ -26,9 +26,9 @@ class Robot : NextRobot {
         const val MAX_BALLS = 4 // game manual G407: a robot may not control more than 4 scoring elements
 
         // Center of the up-facing CELL opening per HIVE state, Pedro inches as red sees the field from the audience
-        // (origin at the audience-side corner on red's side, +y away from the audience). The field is symmetric under a
-        // 180° turn, so blue uses the same numbers. From manual §9.6: HIVE centers 25.5 in apart about the field center,
-        // CELL opening center 15.8 in from the pivot along the HIVE (30° tilt).
+        // (origin at the audience-side corner on red's side, +y away from the audience). The field is symmetric under
+        // a 180° turn, so blue uses the same numbers. From manual §9.6: HIVE centers 25.5 in apart about the field
+        // center, CELL opening center 15.8 in from the pivot along the HIVE (30° tilt).
         val AUDIENCE_HIVE = Pose(59.25, 56.2)
         val COUNTER_HIVE = Pose(59.25, 87.8)
     }
@@ -53,7 +53,8 @@ class Robot : NextRobot {
         Telemetry.addBackend(PanelsTelemetry.ftcTelemetry)
     }
 
-    // The robot starts every match with exactly 4 POLLEN (manual §10.3.4), all in the transfer, gate empty (team, 2026-11-12).
+    // The robot starts every match with exactly 4 POLLEN (manual §10.3.4), all in the transfer, gate empty
+    // (team, 2026-11-12).
     fun preload() {
         balls.clear()
         repeat(4) { balls.addLast(BallType.POLLEN) }

@@ -11,7 +11,8 @@ import org.firstinspires.ftc.teamcode.ExpansionHub
 class Transfer : Mechanism {
     companion object {
         @JvmField var power = 1.0
-        @JvmField var feedPower = 0.5 // CALIBRATION REQUIRED: slow enough that the next ball doesn't follow into the flywheel
+        // CALIBRATION REQUIRED: slow enough that the next ball doesn't follow into the flywheel
+        @JvmField var feedPower = 0.5
     }
 
     private val motor = NextMotor(RobotController.expansionHub, ExpansionHub.TRANSFER_MOTOR)

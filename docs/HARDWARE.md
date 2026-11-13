@@ -6,23 +6,25 @@ Every device the code uses. Confirmed = provided by the team; Pending = not yet 
 | Device | Hub / port or config name | Detail | Status | Code |
 |---|---|---|---|---|
 | Intake motor | Control Hub, motor port 2 | Addressed by port, no Robot Configuration name | Pending (wire and check) | `ControlHub.INTAKE_MOTOR` |
-| Intake motor direction | | FORWARD assumed to pull balls in | Pending (test on robot) | `Intake` (NextMotor default) |
-| Transfer motor | Control Hub, motor port 3 | Port chosen in code (2026-11-04); wire to match | Pending (wire to port 3) | `ControlHub.TRANSFER_MOTOR` |
-| Transfer motor direction | | FORWARD assumed to push balls toward the feeder | Pending (test on robot) | `Transfer` (NextMotor default) |
-| Turret motor | Expansion Hub, motor port 2 | REV UltraPlanetary, motor encoder | Pending (wire and check) | `ExpansionHub.TURRET_MOTOR` |
+| Intake motor direction | | FORWARD pulls balls in | Confirmed (team commit b126a0f, 2026-11-13) | `Intake` (NextMotor default) |
+| Transfer motor | Expansion Hub, motor port 2 | Set by team (2026-11-13) | Pending (wire and check) | `ExpansionHub.TRANSFER_MOTOR` |
+| Transfer motor direction | | FORWARD pushes balls toward the feeder | Confirmed (team commit b126a0f, 2026-11-13) | `Transfer` (NextMotor default) |
+| Turret motor | Expansion Hub, motor port 3 | REV UltraPlanetary, motor encoder; set by team (2026-11-13) | Pending (wire and check) | `ExpansionHub.TURRET_MOTOR` |
 | Turret gearing | | Encoder counts per turret radian unknown | Pending | `Turret.RADIANS_PER_COUNT` (0 = encoder reads 0) |
-| Turret direction | | FORWARD assumed to turn clockwise for positive degrees | Pending (test on robot) | `Turret` (NextMotor default) |
-| Flywheel motor | Expansion Hub, motor port 3 | Velocity from the motor's own encoder (28 counts/motor rev) | Pending (wire and check) | `ExpansionHub.SHOOTER_MOTOR` |
-| Flywheel gearbox / motor model | | Bare-motor 28 CPR and 6000 RPM free speed assumed | Pending | `Shooter.RADIANS_PER_COUNT`, `MAX_RPM` |
-| Hood servo | Expansion Hub, servo port 0 | Position 0..1 | Pending (wire and check) | `ExpansionHub.HOOD_SERVO` |
+| Turret direction | | FORWARD turns clockwise for positive degrees | Confirmed (team commit b126a0f, 2026-11-13); encoder sign still to check | `Turret` (NextMotor default) |
+| Flywheel motor | Control Hub, motor port 3 | Velocity from the motor's own encoder, 764 counts/rev (team, 2026-11-13); set by team | Pending (wire and check) | `ControlHub.SHOOTER_MOTOR` |
+| Flywheel max speed | | 2100 RPM at the encoder shaft (team, 2026-11-13) | Confirmed (team) | `Shooter.RADIANS_PER_COUNT`, `MAX_RPM` |
+| Hood servo | Control Hub, servo port 4 | Position 0..1; set by team (2026-11-13) | Pending (wire and check) | `ControlHub.HOOD_SERVO` |
 | Hood servo usable range | | Full 0..1 assumed safe | Pending (check for hard stops) | `Shooter.hood` |
-| Rail servo | Expansion Hub, servo port 1 | Port chosen in code (2026-11-11); wire to match | Pending (wire to port 1) | `ExpansionHub.RAIL_SERVO` |
+| Rail servo | Control Hub, servo port 5 | Set by team (2026-11-13) | Pending (wire and check) | `ControlHub.RAIL_SERVO` |
 | Rail positions | | POLLEN and NECTAR both 0 until measured | Pending | `Shooter.railPollen`, `railNectar` |
-| Guard servo | Expansion Hub, servo port 2 | 1 = closed (balls wait), 0 = open (team, 2026-11-12) | Pending (wire and check) | `ExpansionHub.GUARD_SERVO`, `Guard.CLOSED/OPEN` |
+| Guard servo | Expansion Hub, servo port 5 | 0.55 = closed (balls wait), 0.78 = open (team, 2026-11-13) | Pending (wire and check) | `ExpansionHub.GUARD_SERVO`, `Guard.CLOSED/OPEN` |
 | Limelight 3A | config name `"limelight"` | Pipeline 0 | Pending | `Limelight` |
-| goBILDA RGB Indicator Light (3118-0808-0002) | Control Hub, servo port 4 | Moved off broken port 0 (2026-11-11); wire to match | Pending (wire to port 4) | `ControlHub.INDICATOR_SERVO` |
-| Gate servo | Control Hub, servo port 5 | Position 0..1; moved off port 4, which the Indicator uses (2026-11-12); wire to match | Pending (wire to port 5) | `ControlHub.GATE_SERVO` |
+| goBILDA RGB Indicator Light (3118-0808-0002) | Expansion Hub, servo port 0 | Set by team (2026-11-13) | Pending (wire and check) | `ExpansionHub.INDICATOR_SERVO` |
+| Gate servo | Expansion Hub, servo port 4 | Position 0..1; set by team (2026-11-13) | Pending (wire and check) | `ExpansionHub.GATE_SERVO` |
 | Gate color/distance sensor | Control Hub, I2C bus 2 | REV Color Sensor V2; addressed by bus, no Robot Configuration name | Pending (wire and check) | `ControlHub.GATE_COLOR_SENSOR_I2C_BUS` |
+| Drive motors | config names `"frontLeft"`, `"frontRight"`, `"backLeft"`, `"backRight"` | All REVERSE (team, 2026-11-13) | Confirmed (team) | `pedro/Constants.driveConfig` |
+| goBILDA Pinpoint | config name `"pinpoint"` | 4-bar pods, both FORWARD; pod offsets x 0.0051 in, y -2.078 in (team, 2026-11-13) | Confirmed (team) | `pedro/Constants.localizerConfig` |
 
 Control Hub servo ports 0-3 are broken (reported 2026-11-11); use Control Hub ports 4-5 or Expansion Hub ports.
 

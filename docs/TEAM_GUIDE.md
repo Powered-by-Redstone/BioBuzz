@@ -14,7 +14,7 @@
 - **Control Hub servo ports 0–3 broken.** Use Control Hub servo 4–5 or Expansion Hub servos.
 - **No port-addressed devices in Robot Configuration.** Intake, transfer, turret, flywheel, all servos, indicator,
   color sensor: addressed by hub + port in `Ports.kt`, not name. Also configured on same port: both drive one device,
-  no warning. Named devices only: `limelight` (+ 4 drive motors + Pinpoint once Pedro set up).
+  no warning. Named devices only: `limelight`, `frontLeft`, `frontRight`, `backLeft`, `backRight`, `pinpoint`.
 - **Panels edits temporary.** Lost on Sloth deploy or app restart. Good value: copy into code (section 4), commit.
 
 ## 2. Tools
@@ -56,8 +56,8 @@ Tested math: turret angle choice (`TurretAngleTest`), launch-table interpolation
 
 ### Ports (`Ports.kt`, code)
 
-Ports not decided yet; current numbers in `Ports.kt` are placeholders. Each device's hub + port: constant in
-`Ports.kt`. Set it, wire to match, tick off in checklist (section 8).
+Ports set by team in `Ports.kt` (2026-11-13), not yet checked against wiring. Check each, tick off in checklist
+(section 8).
 
 Change port: number in `Ports.kt`. Other hub: move constant to other object (`ControlHub` ↔ `ExpansionHub`)
 *and* mechanism passes other hub (`RobotController.controlHub` ↔ `RobotController.expansionHub`). Update
@@ -67,8 +67,8 @@ Color sensor code: REV Color Sensor **V2** only. V3 needs code change.
 
 ### Motor directions (code)
 
-No direction set; all FORWARD. Intake, transfer: flip in Panels with negative power. Turret, flywheel: code change,
-`direction = REVERSE` on that `NextMotor` (flips power + encoder). **Never flip turret or flywheel with negative
+No direction set in code; all FORWARD (team verified directions, 2026-11-13). Intake, transfer: flip in Panels with
+negative power. Turret, flywheel: code change, `direction = REVERSE` on that `NextMotor` (flips power + encoder). **Never flip turret or flywheel with negative
 `RADIANS_PER_COUNT`**: flips encoder only, PID pushes wrong way, motor runs away.
 
 ### Tunables
@@ -79,13 +79,13 @@ No direction set; all FORWARD. Intake, transfer: flip in Panels with negative po
 | `Intake.rejectS` | Panels | 0.5 | s reversing to push rejected ball out | 5.4 |
 | `Transfer.power` | Panels | 1.0 | -1..1; negative flips transfer | 5.1 |
 | `Transfer.feedPower` | Panels | 0.5 | -1..1 while guard open | 5.7 |
-| `Gate.OPEN_POS` / `HOLD_POS` / `CLOSE_POS` | Panels | 0.35 / 0.5 / 0.55 | servo 0..1 | 5.2 |
-| `Gate.COLOR_GAIN` | Panels | 20 | software gain, color sensor | 5.4 |
-| `Gate.BALL_MM` | Panels | 160 | mm; closer = ball at gate | 5.4 |
+| `Gate.OPEN_POS` / `HOLD_POS` / `CLOSE_POS` | Panels | 0.17 / 0.32 / 0.58 | servo 0..1 | 5.2 |
+| `Gate.COLOR_GAIN` | Panels | 15 | software gain, color sensor | 5.4 |
+| `Gate.BALL_MM` | Panels | 14 | mm; closer = ball at gate | 5.4 |
 | `Gate.transferS` | Panels | 0 | s extra wait after closing | 5.4 |
 | `Gate.colorTimeoutS` | Panels | 3 | s before unreadable ball rejected | 5.4 |
-| `Gate.RED` / `YELLOW` / `BLUE` | code | hue 0 / 60 / 220 | HSV ball colors (± 25° hue, ± 0.4 saturation) | 5.4 |
-| `Guard.CLOSED` / `OPEN` | code | 1.0 / 0.0 | servo 0..1 | 5.2 |
+| `Gate.RED` / `YELLOW` / `BLUE` | code | hue 356 / 20 / 190 | HSV ball colors (± 25° hue, ± 0.4 saturation) | 5.4 |
+| `Guard.CLOSED` / `OPEN` | code | 0.55 / 0.78 | servo 0..1 | 5.2 |
 | `Guard.maxOpenS` | Panels | 0.5 | s guard stays open waiting for dip | 5.7 |
 | `Turret.RADIANS_PER_COUNT` | code | 0.0 | turret rad per motor encoder count | 5.3 |
 | `Turret.MIN_RAD` / `MAX_RAD` | Panels | ±π/3 (±60°) | rad, clockwise from reference | 5.3 |
@@ -95,8 +95,8 @@ No direction set; all FORWARD. Intake, transfer: flip in Panels with negative po
 | `Turret.leadS` | Panels | 0 | s of chassis motion to aim ahead; 0 = off | 5.10 |
 | `Turret.STEP_RAD` | Panels | π/18 (10°) | dpad step, TurretTest | – |
 | `Turret.seekRangeRad` | Panels | π/6 (30°) | early unwind; only matters once limits exceed 420° | – |
-| `Shooter.MAX_RPM` | code | 6000 | motor-shaft RPM cap | 5.1 |
-| `Shooter.RADIANS_PER_COUNT` | code | 2π/28 | bare motor encoder; RPM at motor shaft | – |
+| `Shooter.MAX_RPM` | code | 2100 | RPM cap at encoder shaft | 5.1 |
+| `Shooter.RADIANS_PER_COUNT` | code | 2π/764 | motor encoder, 764 counts/rev; RPM at encoder shaft | – |
 | `Shooter.gains` | Panels | all 0 | `pidConstants` kP/kI/kD, `ffCoefficients` kS/kV/kA | 5.6 |
 | `Shooter.rpmTolerance` | Panels | 100 | RPM; shots wait until this close | 5.6 |
 | `Shooter.shotDipRpm` | Panels | 300 | RPM drop = ball fired | 5.7 |
@@ -104,7 +104,7 @@ No direction set; all FORWARD. Intake, transfer: flip in Panels with negative po
 | `Shooter.POLLEN_SHOTS` / `NECTAR_SHOTS` | code | empty | launch tables; empty = never fires | 5.9 |
 | `Limelight.PIPELINE` | code | 0 | pipeline index | 5.8 |
 | `Robot.AUDIENCE_HIVE` / `COUNTER_HIVE` | code | (59.25, 56.2) / (59.25, 87.8) | Pedro inches, aim point per HIVE state | 5.8 |
-| Pedro drive + localizer | `pedro/Constants.java` | returns null | see 5.8 | 5.8 |
+| Pedro drive + localizer | `pedro/Constants.java` | configs filled, `create()` returns null | see 5.8 | 5.8 |
 
 **Committing turret/shooter gains.** Companion `gains = MotorPositionConstants()` (`MotorVelocityConstants()` in
 `Shooter`) is only a placeholder so Panels has a field to show. `init` then points `gains` at the motor's own
@@ -135,8 +135,8 @@ Plain SDK OpMode: one motor on gamepad 1 left stick, nothing else runs. Set `Mot
      (= 2π / (28 × gearbox ratio × turret gear ratio)).
    - Measure real safe travel from reference, both directions (expected ~500° one way). Needed for 5.3.
 4. **Flywheel**: stick up spins launch direction **and** velocity positive. Else
-   `direction = REVERSE` (code). Note top velocity at full stick: RPM = counts/s × 60 / 28. Not a bare 6000 RPM
-   motor: change `MAX_RPM` (code).
+   `direction = REVERSE` (code). Note top velocity at full stick: RPM = counts/s × 60 / 764. `MAX_RPM` (2100)
+   below safe top speed (code).
 
 ### 5.2 Servo positions — *Servo test*
 
@@ -147,7 +147,7 @@ or unhook first. Limp at STOP.
 | Servo | Find |
 |---|---|
 | Gate | `OPEN_POS` (ball passes in), `HOLD_POS` (ball held still at sensor), `CLOSE_POS` (ball pushed into transfer) |
-| Guard | 1.0 = closed, 0.0 = open? Else change `Guard.CLOSED` / `OPEN` (code) |
+| Guard | `CLOSED` (0.55) holds balls, `OPEN` (0.78) lets one through? Else change `Guard.CLOSED` / `OPEN` (code) |
 | Hood | range without hard stops. Code clamps 0..1 only; narrower safe range: change clamp in `Shooter.hood` (code) |
 | Rail | `railPollen`, `railNectar` (rail spacing per ball) |
 
@@ -181,7 +181,7 @@ for yellow ball within 160 mm, hold, close. Telemetry: `Gate position`, `Gate se
 
 ### 5.5 Turret PID — *Turret test*
 
-Controls: dpad left/right = target ∓10°; dpad up/down = RPM ±100; bumpers = hood ±0.05; right trigger = POLLEN/NECTAR;
+Controls: dpad left/right = target ∓10°; dpad up/down = RPM ±50; bumpers = hood ±0.05; right trigger = POLLEN/NECTAR;
 circle = toggle HIVE aiming (needs Pedro); cross = fire one ball. Target 0° at INIT. Works without Pedro.
 
 1. Needs: 5.3 step 1 done, turret at reference at power-up.
@@ -212,10 +212,11 @@ Balls into transfer by hand (runs from START). RPM that throws safely. Cross fir
 ### 5.8 Pedro, start pose, HIVE, Limelight
 
 **Pedro** (needed for HIVE aiming, Full test, launch tables). `pedro/Constants.java` `create()` returns `null`:
-*Full test* crashes at INIT, *Turret test* can't aim at HIVE. Set up + tune (mecanum, Pinpoint) per
-[Pedro docs](https://pedropathing.com/docs) and
-[Pinpoint tuning](https://pedropathing.com/docs/pathing/tuning/localization/pinpoint); fill `Constants.create`.
-Tuners in `pedro/procedures`; `pedro/Tuning.java` empty, not launchable yet.
+*Full test* crashes at INIT, *Turret test* can't aim at HIVE. Drive + Pinpoint configs filled (`driveConfig`,
+`localizerConfig`). Tuners registered in `pedro/Tuning.java`: `mecanumTuner`, `pinpointTuner`, `foresightTuner`,
+`driveTest`, `localizationTest`. Tune per [Pedro docs](https://pedropathing.com/docs) and
+[Pinpoint tuning](https://pedropathing.com/docs/pathing/tuning/localization/pinpoint), then make `Constants.create`
+build the `Follower` from the configs.
 
 **Start pose.** Same every match, not measured yet. Pedro frame (assumed, unconfirmed): origin audience-side corner on
 red's side, +x toward blue, +y away from audience, inches, radians counter-clockwise. Blue uses same numbers (field
@@ -328,7 +329,7 @@ Done on robot + value in code: tick (`- [x]`) in a commit. GitHub shows checkbox
 - [ ] Rail servo: port set in `Ports.kt`, wired to match
 - [ ] Guard servo: port set in `Ports.kt`, wired to match
 - [ ] Limelight in Control Hub USB 3.0 port, configured as `limelight`
-- [ ] Drive motors + Pinpoint in Robot Configuration
+- [ ] Drive motors (`frontLeft`, `frontRight`, `backLeft`, `backRight`) + `pinpoint` in Robot Configuration
 - [ ] No port-addressed device also in Robot Configuration
 
 ### Directions and gearing (5.1)
@@ -344,7 +345,7 @@ Done on robot + value in code: tick (`- [x]`) in a commit. GitHub shows checkbox
 ### Servos (5.2)
 
 - [ ] Gate `OPEN_POS`, `HOLD_POS`, `CLOSE_POS`
-- [ ] Guard: 1.0 = closed, 0.0 = open
+- [ ] Guard `CLOSED` / `OPEN`
 - [ ] Hood safe range (clamp changed if narrower than 0..1)
 - [ ] `railPollen`, `railNectar`
 
