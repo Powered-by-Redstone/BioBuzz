@@ -57,7 +57,7 @@ class Gate : Mechanism {
 
     val acceptBall = command {
         await(open)
-        waitUntil { colorSensor.isColorWithinDistance(YELLOW,160.0,DistanceUnit.MM) }
+        waitUntil { colorSensor.isColorWithinDistance(YELLOW, BALL_MM, DistanceUnit.MM) }
         await(hold)
         await(close)
     }.requiring(this)

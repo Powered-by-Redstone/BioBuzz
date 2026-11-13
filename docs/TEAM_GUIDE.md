@@ -164,7 +164,7 @@ Indicator: not a positional servo, skip.
 ### 5.4 Collecting — *Gate test*, then *Full test*
 
 *Gate test* (NextFTC: transfer spins from START): cross = open, square = close, triangle = hold, circle = open, wait
-for yellow ball within 160 mm, hold, close. Telemetry: `Gate position`, `Gate sensor output` (raw color/distance).
+for yellow ball within `BALL_MM`, hold, close. Telemetry: `Gate position`, `Gate sensor output` (raw color/distance).
 
 1. Check three gate positions with ball by hand.
 2. **Distance**: ball resting against gate, read distance in `Gate sensor output`. `BALL_MM` slightly above. No ball:
