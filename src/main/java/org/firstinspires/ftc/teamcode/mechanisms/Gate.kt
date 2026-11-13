@@ -14,6 +14,7 @@ import dev.nextftc.robot.coroutine.command
 import dev.nextftc.robot.Telemetry
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit
 import org.firstinspires.ftc.teamcode.ControlHub
+import org.firstinspires.ftc.teamcode.ExpansionHub
 
 @Configurable
 class Gate : Mechanism {
@@ -34,7 +35,7 @@ class Gate : Mechanism {
         val BLUE = ColorProfile(ColorSpace.HSV, NextColor.hsv(190f, 0.6f, 1f), BALL_TOLERANCE)
     }
 
-    private val servo = NextServo(RobotController.controlHub, ControlHub.GATE_SERVO)
+    private val servo = NextServo(RobotController.expansionHub, ExpansionHub.GATE_SERVO)
 
     private val colorSensor = NextColorDistanceSensor(RobotController.controlHub, ControlHub.GATE_COLOR_SENSOR_I2C_BUS, hasDistance = true)
 

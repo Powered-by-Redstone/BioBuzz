@@ -24,9 +24,9 @@ data class Shot(val distanceIn: Double, val rpm: Double, val hood: Double)
 @Configurable
 class Shooter : Mechanism {
     companion object {
-        const val RADIANS_PER_COUNT = 2 * PI / 28 // motor encoder, so RPM is at the motor shaft
+        const val RADIANS_PER_COUNT = 2 * PI / 764 // motor encoder, so RPM is at the motor shaft
         const val MAX_RPM = 2100.0
-        const val RPM_STEP = 100.0
+        const val RPM_STEP = 50.0
         const val HOOD_STEP = 0.05
         @JvmField var gains = MotorVelocityConstants()
         @JvmField var railPollen = 0.0 // servo position 0..1
@@ -53,8 +53,8 @@ class Shooter : Mechanism {
     var ball = BallType.NECTAR
 
     private val motor = NextMotor(RobotController.controlHub, ControlHub.SHOOTER_MOTOR, RADIANS_PER_COUNT.radians)
-    private val servo = NextServo(RobotController.expansionHub, ExpansionHub.HOOD_SERVO)
-    private val rail = NextServo(RobotController.expansionHub, ExpansionHub.RAIL_SERVO)
+    private val servo = NextServo(RobotController.controlHub, ControlHub.HOOD_SERVO)
+    private val rail = NextServo(RobotController.controlHub, ControlHub.RAIL_SERVO)
 
     init {
         gains = motor.velocityConstants

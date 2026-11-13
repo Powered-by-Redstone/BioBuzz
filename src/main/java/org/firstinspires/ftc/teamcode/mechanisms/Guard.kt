@@ -6,6 +6,7 @@ import dev.nextftc.hardware.actuators.NextServo
 import dev.nextftc.robot.Mechanism
 import dev.nextftc.robot.Telemetry
 import org.firstinspires.ftc.teamcode.ControlHub
+import org.firstinspires.ftc.teamcode.ExpansionHub
 
 // Flap between the transfer and the flywheel: closed, balls wait against it even while the transfer spins.
 @Configurable
@@ -17,7 +18,7 @@ class Guard : Mechanism {
         @JvmField var maxOpenS = 0.5
     }
 
-    private val servo = NextServo(RobotController.controlHub, ControlHub.GUARD_SERVO)
+    private val servo = NextServo(RobotController.expansionHub, ExpansionHub.GUARD_SERVO)
 
     override val defaultCommand = infinite { servo.position = CLOSED }
 
