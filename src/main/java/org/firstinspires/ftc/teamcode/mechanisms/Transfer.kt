@@ -5,7 +5,7 @@ import dev.nextftc.hardware.RobotController
 import dev.nextftc.hardware.actuators.NextMotor
 import dev.nextftc.robot.Mechanism
 import dev.nextftc.robot.Telemetry
-import org.firstinspires.ftc.teamcode.ControlHub
+import org.firstinspires.ftc.teamcode.ExpansionHub
 
 @Configurable
 class Transfer : Mechanism {
@@ -14,7 +14,7 @@ class Transfer : Mechanism {
         @JvmField var feedPower = 0.5 // CALIBRATION REQUIRED: slow enough that the next ball doesn't follow into the flywheel
     }
 
-    private val motor = NextMotor(RobotController.controlHub, ControlHub.TRANSFER_MOTOR)
+    private val motor = NextMotor(RobotController.expansionHub, ExpansionHub.TRANSFER_MOTOR)
 
     val run = infinite { motor.throttle = power.coerceIn(-1.0..1.0) }.setEnd { motor.throttle = 0.0 }
 

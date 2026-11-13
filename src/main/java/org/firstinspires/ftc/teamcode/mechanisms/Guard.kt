@@ -5,19 +5,19 @@ import dev.nextftc.hardware.RobotController
 import dev.nextftc.hardware.actuators.NextServo
 import dev.nextftc.robot.Mechanism
 import dev.nextftc.robot.Telemetry
-import org.firstinspires.ftc.teamcode.ExpansionHub
+import org.firstinspires.ftc.teamcode.ControlHub
 
 // Flap between the transfer and the flywheel: closed, balls wait against it even while the transfer spins.
 @Configurable
 class Guard : Mechanism {
     companion object {
-        const val CLOSED = 1.0
-        const val OPEN = 0.0
+        const val CLOSED = 0.55
+        const val OPEN = 0.78
         // CALIBRATION REQUIRED: a shot closes the guard and retries if the flywheel shows no dip this long after opening
         @JvmField var maxOpenS = 0.5
     }
 
-    private val servo = NextServo(RobotController.expansionHub, ExpansionHub.GUARD_SERVO)
+    private val servo = NextServo(RobotController.controlHub, ControlHub.GUARD_SERVO)
 
     override val defaultCommand = infinite { servo.position = CLOSED }
 
